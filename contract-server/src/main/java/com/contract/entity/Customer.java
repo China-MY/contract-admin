@@ -30,6 +30,15 @@ public class Customer {
     @Column(length = 500)
     private String address;
 
+    @Column(length = 100)
+    private String taxId;
+
+    @Column(length = 200)
+    private String bankName;
+
+    @Column(length = 100)
+    private String bankAccount;
+
     @Column(columnDefinition = "TEXT")
     private String remark;
 

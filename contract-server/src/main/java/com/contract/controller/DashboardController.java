@@ -1,6 +1,7 @@
 package com.contract.controller;
 
 import com.contract.common.Result;
+import com.contract.entity.Contract;
 import com.contract.repository.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,7 +86,71 @@ public class DashboardController {
 
     @GetMapping("/reminders")
     public Result<?> reminders() {
-        return Result.ok(List.of());
+        var now = java.time.LocalDate.now();
+        var receivables = contractRepository.findByDirection("receivable");
+        var payables = contractRepository.findByDirection("payable");
+        var plans = paymentPlanRepository.findAll();
+        List<Map<String,Object>> list = new ArrayList<>();
+
+        // Contract reminders
+        for (var c : receivables) {
+            if (c.getEndDate() != null && !"completed".equals(c.getReceiptStatus())) {
+                long days = java.time.temporal.ChronoUnit.DAYS.between(now, c.getEndDate());
+                Map<String,Object> m = new HashMap<>();
+                m.put("type","应收合同到期"); m.put("title",c.getContractName());
+                m.put("desc","合同编号: " + c.getContractNo() + " | 到期日: " + c.getEndDate());
+                m.put("overdue",days<0); m.put("days",Math.abs((int)days));
+                list.add(m);
+            }
+        }
+        for (var c : payables) {
+            if (c.getEndDate() != null && !"completed".equals(c.getPaymentStatus())) {
+                long days = java.time.temporal.ChronoUnit.DAYS.between(now, c.getEndDate());
+                Map<String,Object> m = new HashMap<>();
+                m.put("type","应付合同到期"); m.put("title",c.getContractName());
+                m.put("desc","合同编号: " + c.getContractNo() + " | 到期日: " + c.getEndDate());
+                m.put("overdue",days<0); m.put("days",Math.abs((int)days));
+                list.add(m);
+            }
+        }
+        // Plan reminders
+        for (var p : plans) {
+            if (p.getPlannedDate() != null && !"paid".equals(p.getStatus())) {
+                long days = java.time.temporal.ChronoUnit.DAYS.between(now, p.getPlannedDate());
+                Map<String,Object> m = new HashMap<>();
+                m.put("type",("receipt".equals(p.getDirection())?"收款":"付款")+"计划到期");
+                m.put("title",p.getContractName()); m.put("desc","计划金额: " + p.getPlannedAmount() + " | 计划日期: " + p.getPlannedDate());
+                m.put("overdue",days<0); m.put("days",Math.abs((int)days));
+                list.add(m);
+            }
+        }
+        list.sort((a,b) -> Integer.compare((int)b.get("days"), (int)a.get("days")));
+        if (list.size() > 20) list = list.subList(0, 20);
+        return Result.ok(list);
+    }
+
+    @GetMapping("/dashboard/recent-contracts")
+    public Result<?> recentContracts() {
+        List<Contract> all = contractRepository.findAll();
+        all.sort((a,b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        if (all.size() > 10) all = all.subList(0, 10);
+        return Result.ok(all);
+    }
+
+    @GetMapping("/dashboard/recent-transactions")
+    public Result<?> recentTransactions() {
+        var records = paymentRecordRepository.findAll().stream()
+            .sorted((a,b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+            .limit(10).collect(Collectors.toList());
+        var list = records.stream().map(r -> {
+            Map<String,Object> m = new HashMap<>();
+            m.put("recordNo", r.getRecordNo()); m.put("type", "receipt".equals(r.getDirection()) ? "收款" : "付款");
+            m.put("amount", r.getAmount().doubleValue()); m.put("party", r.getPayer() != null ? r.getPayer() : r.getPayee());
+            m.put("date", r.getRecordDate() != null ? r.getRecordDate().toString() : "");
+            m.put("status", r.getStatus());
+            return m;
+        }).collect(Collectors.toList());
+        return Result.ok(list);
     }
 
     @GetMapping("/statistics/overview")

@@ -55,10 +55,57 @@ public class AuthController {
                 "id", user.getId(),
                 "username", user.getUsername(),
                 "realName", user.getRealName(),
-                "roleNames", user.getRoleNames(),
+                "roleNames", user.getRoleNames() != null ? user.getRoleNames() : "",
                 "companyIds", user.getCompanyIds() != null ? user.getCompanyIds() : "",
                 "companyNames", user.getCompanyNames() != null ? user.getCompanyNames() : ""
             )
         ));
+    }
+
+    @PostMapping("/logout")
+    public Result<?> logout() {
+        return Result.ok();
+    }
+
+    @GetMapping("/user-info")
+    public Result<?> userInfo(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Result.error(401, "未认证");
+        }
+        String token = authHeader.substring(7);
+        String username = jwtUtil.getUsernameFromToken(token);
+        if (username == null) {
+            return Result.error(401, "Token无效");
+        }
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return Result.error(401, "用户不存在");
+        }
+        return Result.ok(Map.of(
+            "id", user.getId(),
+            "username", user.getUsername(),
+            "realName", user.getRealName(),
+            "roleNames", user.getRoleNames() != null ? user.getRoleNames() : "",
+            "companyIds", user.getCompanyIds() != null ? user.getCompanyIds() : "",
+            "companyNames", user.getCompanyNames() != null ? user.getCompanyNames() : ""
+        ));
+    }
+
+    @PutMapping("/password")
+    public Result<?> changePassword(@RequestBody Map<String, String> body) {
+        String username = body.get("username");
+        String oldPassword = body.get("oldPassword");
+        String newPassword = body.get("newPassword");
+
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return Result.error("原密码错误");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return Result.ok("密码修改成功");
     }
 }

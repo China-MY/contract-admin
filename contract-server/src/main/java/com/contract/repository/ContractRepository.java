@@ -25,4 +25,5 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
                           Pageable pageable);
 
     List<Contract> findByDirection(String direction);
+    List<Contract> findByContractNo(String contractNo);
 }

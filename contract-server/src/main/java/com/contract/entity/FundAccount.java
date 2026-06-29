@@ -21,6 +21,12 @@ public class FundAccount {
     @Column(length = 200)
     private String bankName;
 
+    @Column(precision = 18, scale = 2)
+    private java.math.BigDecimal balance = java.math.BigDecimal.ZERO;
+
+    @Column
+    private Boolean isDefault = false;
+
     @Column(length = 20)
     private String type; // company / personal
 

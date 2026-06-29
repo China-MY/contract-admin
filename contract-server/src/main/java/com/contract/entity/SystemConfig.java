@@ -6,31 +6,24 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "sys_role")
-public class Role {
+@Table(name = "system_config")
+public class SystemConfig {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100)
-    private String roleName;
+    @Column(length = 100, unique = true)
+    private String configKey;
 
-    @Column(length = 100)
-    private String roleCode;
-
-    @Column(length = 20)
-    private String status; // enabled / disabled
-
-    private Integer sortOrder;
+    @Column(length = 10)
+    private String configValue; // enabled / disabled
 
     @Column(length = 500)
-    private String remark;
-
-    @Column(columnDefinition = "TEXT")
-    private String menuCodes; // comma-separated menu codes
+    private String description;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 
     @PrePersist

@@ -29,6 +29,7 @@ public class ContractController {
     private final FundAccountRepository fundAccountRepository;
     private final LoginLogRepository loginLogRepository;
     private final OperationLogRepository operationLogRepository;
+    private final SystemConfigRepository systemConfigRepository;
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public ContractController(ContractRepository contractRepository,
@@ -46,6 +47,7 @@ public class ContractController {
             FundAccountRepository fundAccountRepository,
             LoginLogRepository loginLogRepository,
             OperationLogRepository operationLogRepository,
+            SystemConfigRepository systemConfigRepository,
             org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.contractRepository = contractRepository;
         this.invoiceRepository = invoiceRepository;
@@ -62,6 +64,7 @@ public class ContractController {
         this.fundAccountRepository = fundAccountRepository;
         this.loginLogRepository = loginLogRepository;
         this.operationLogRepository = operationLogRepository;
+        this.systemConfigRepository = systemConfigRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -123,6 +126,24 @@ public class ContractController {
         return Result.ok("保存成功");
     }
 
+    @GetMapping("/contracts/summary")
+    public Result<?> getContractSummary(@RequestParam String direction) {
+        List<Contract> list = contractRepository.findByDirection(direction);
+        double totalAmount = list.stream().mapToDouble(c -> c.getContractAmount().doubleValue()).sum();
+        double totalReceived = list.stream().mapToDouble(c -> c.getReceivedAmount().doubleValue()).sum();
+        double totalInvoiced = list.stream().mapToDouble(c -> c.getInvoicedAmount().doubleValue()).sum();
+        double totalPaid = list.stream().mapToDouble(c -> c.getPaidAmount().doubleValue()).sum();
+        double totalReceivedInvoice = list.stream().mapToDouble(c -> c.getReceivedInvoiceAmount().doubleValue()).sum();
+        return Result.ok(Map.of(
+            "totalAmount", totalAmount,
+            "totalReceived", totalReceived,
+            "totalInvoiced", totalInvoiced,
+            "totalPaid", totalPaid,
+            "totalReceivedInvoice", totalReceivedInvoice,
+            "count", list.size()
+        ));
+    }
+
     // === 发票 ===
     @GetMapping("/invoices")
     public Result<?> getInvoices(
@@ -150,6 +171,16 @@ public class ContractController {
         if(body.getIssuer()!=null) inv.setIssuer(body.getIssuer()); if(body.getReceiver()!=null) inv.setReceiver(body.getReceiver());
         if(body.getRemark()!=null) inv.setRemark(body.getRemark());
         invoiceRepository.save(inv); return Result.ok("保存成功");
+    }
+    @DeleteMapping("/invoices/{id}") public Result<?> deleteInvoice(@PathVariable Long id) { invoiceRepository.deleteById(id); return Result.ok("删除成功"); }
+
+    @GetMapping("/invoices/summary")
+    public Result<?> getInvoiceSummary(@RequestParam String direction) {
+        List<Invoice> list = invoiceRepository.findByDirection(direction);
+        double totalWithTax = list.stream().mapToDouble(i -> i.getAmountWithTax().doubleValue()).sum();
+        double totalWithoutTax = list.stream().mapToDouble(i -> i.getAmountWithoutTax() != null ? i.getAmountWithoutTax().doubleValue() : 0).sum();
+        double totalTax = list.stream().mapToDouble(i -> i.getTaxAmount() != null ? i.getTaxAmount().doubleValue() : 0).sum();
+        return Result.ok(Map.of("totalWithTax", totalWithTax, "totalWithoutTax", totalWithoutTax, "totalTax", totalTax, "count", list.size()));
     }
 
     // === 付款计划 ===
@@ -208,6 +239,29 @@ public class ContractController {
         paymentRecordRepository.save(r); return Result.ok("保存成功");
     }
     @DeleteMapping("/payment-records/{id}") public Result<?> deleteRecord(@PathVariable Long id) { paymentRecordRepository.deleteById(id); return Result.ok("删除成功"); }
+
+    @PostMapping("/payment-records/confirm")
+    public Result<?> confirmRecord(@RequestBody Map<String, Object> body) {
+        Long id = Long.valueOf(body.get("id").toString());
+        PaymentRecord r = paymentRecordRepository.findById(id).orElse(null);
+        if (r == null) return Result.error("记录不存在");
+        r.setStatus("confirmed");
+        paymentRecordRepository.save(r);
+        // Update contract received/paid amount
+        List<PaymentRecord> records = paymentRecordRepository.findByContractNoAndDirection(r.getContractNo(), r.getDirection());
+        double total = records.stream().filter(rec -> "confirmed".equals(rec.getStatus()))
+            .mapToDouble(rec -> rec.getAmount().doubleValue()).sum();
+        List<Contract> contracts = contractRepository.findByContractNo(r.getContractNo());
+        for (Contract c : contracts) {
+            if ("receipt".equals(r.getDirection())) {
+                c.setReceivedAmount(java.math.BigDecimal.valueOf(total));
+            } else {
+                c.setPaidAmount(java.math.BigDecimal.valueOf(total));
+            }
+            contractRepository.save(c);
+        }
+        return Result.ok("确认成功");
+    }
 
     // === 项目 ===
     @GetMapping("/projects")
@@ -384,6 +438,16 @@ public class ContractController {
         return Result.ok("删除成功");
     }
 
+    @PutMapping("/users/{id}/password")
+    public Result<?> resetPassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) return Result.error("用户不存在");
+        String newPassword = body.getOrDefault("password", "123456");
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return Result.ok("密码已重置为: " + newPassword);
+    }
+
     // === 角色 ===
     @GetMapping("/roles") public Result<?> getRoles() { return Result.ok(roleRepository.findAll()); }
     @PostMapping("/roles") public Result<?> createRole(@RequestBody Role role) { role.setId(null); roleRepository.save(role); return Result.ok("保存成功"); }
@@ -394,6 +458,17 @@ public class ContractController {
         if(body.getRemark()!=null) r.setRemark(body.getRemark()); roleRepository.save(r); return Result.ok("保存成功");
     }
     @DeleteMapping("/roles/{id}") public Result<?> deleteRole(@PathVariable Long id) { roleRepository.deleteById(id); return Result.ok("删除成功"); }
+
+    @PutMapping("/roles/{id}/menus")
+    public Result<?> assignRoleMenus(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        Role r = roleRepository.findById(id).orElse(null);
+        if (r == null) return Result.error("角色不存在");
+        @SuppressWarnings("unchecked")
+        List<String> menus = (List<String>) body.getOrDefault("menus", List.of());
+        r.setMenuCodes(String.join(",", menus));
+        roleRepository.save(r);
+        return Result.ok("权限分配成功");
+    }
 
     // === 部门 ===
     @GetMapping("/depts") public Result<?> getDepts() { return Result.ok(deptRepository.findAll()); }
@@ -448,6 +523,28 @@ public class ContractController {
     public Result<?> deleteFundAccount(@PathVariable Long id) {
         fundAccountRepository.deleteById(id);
         return Result.ok("删除成功");
+    }
+
+    // === 系统配置 ===
+    @GetMapping("/settings/config")
+    public Result<?> getSystemConfig() {
+        List<SystemConfig> configs = systemConfigRepository.findAll();
+        return Result.ok(configs);
+    }
+
+    @PutMapping("/settings/config")
+    public Result<?> updateSystemConfig(@RequestBody List<SystemConfig> configs) {
+        for (SystemConfig config : configs) {
+            SystemConfig existing = systemConfigRepository.findByConfigKey(config.getConfigKey());
+            if (existing != null) {
+                existing.setConfigValue(config.getConfigValue());
+                systemConfigRepository.save(existing);
+            } else {
+                config.setId(null);
+                systemConfigRepository.save(config);
+            }
+        }
+        return Result.ok("保存成功");
     }
 
     // === 日志 ===
