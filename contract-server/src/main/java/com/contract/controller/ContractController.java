@@ -151,7 +151,9 @@ public class ContractController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         Page<Invoice> result = invoiceRepository.findByDirection(direction, PageRequest.of(page - 1, size));
-        return Result.ok(Map.of("records", result.getContent(), "total", result.getTotalElements()));
+        double totalAmount = invoiceRepository.findByDirection(direction).stream()
+            .mapToDouble(i -> i.getAmountWithTax().doubleValue()).sum();
+        return Result.ok(Map.of("records", result.getContent(), "total", result.getTotalElements(), "totalAmount", totalAmount));
     }
     @PostMapping("/invoices") public Result<?> createInvoice(@RequestBody Invoice inv) {
         inv.setId(null);
