@@ -58,7 +58,7 @@ async function loadInvoiceTypes() {
 async function loadData() {
   loading.value = true
   const params = new URLSearchParams({ page:String(pagination.current), size:String(pagination.pageSize), keyword: searchForm.keyword || '', type: searchForm.type || '' })
-  const res = await fetch(`/api/invoices?direction=output&${params}`)
+  const res = await authFetch(`/api/invoices?direction=output&${params}`)
   const data = await res.json()
   if (data.code === 200) { dataList.value = data.data.records; pagination.total = data.data.total; totalAmount.value = data.data.totalAmount||0 }
   loading.value = false

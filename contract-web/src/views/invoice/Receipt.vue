@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
+import { authFetch } from '../../utils/auth'
 import InvoiceForm from './InvoiceForm.vue'
 
 const searchForm = reactive({ keyword: '', type: '', date: null })
@@ -49,7 +50,7 @@ onMounted(loadData)
 async function loadData() {
   loading.value = true
   const params = new URLSearchParams({ page:String(pagination.current), size:String(pagination.pageSize) })
-  const res = await fetch(`/api/invoices?direction=input&${params}`)
+  const res = await authFetch(`/api/invoices?direction=input&${params}`)
   const data = await res.json()
   if (data.code === 200) { dataList.value = data.data.records; pagination.total = data.data.total; totalAmount.value = data.data.totalAmount||0 }
   loading.value = false
