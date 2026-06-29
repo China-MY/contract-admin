@@ -46,6 +46,8 @@ public class AuthController {
         }
 
         recordLoginLog(username, "success", "登录成功");
+        user.setLastLoginAt(java.time.LocalDateTime.now());
+        userRepository.save(user);
         String token = jwtUtil.generateToken(username);
         return Result.ok(Map.of(
             "token", token,

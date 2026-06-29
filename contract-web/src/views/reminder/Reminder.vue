@@ -7,14 +7,14 @@
             <a-list-item>
               <a-list-item-meta>
                 <template #title>
-                  <a-tag :color="item.overdue ? 'red' : 'orange'">{{item.type}}</a-tag>
+                  <a-tag :color="item.overdue ? 'red' : 'orange'">{{item.type==='contract'?'合同到期':item.type==='plan'?'计划到期':item.type}}</a-tag>
                   {{item.title}}
                 </template>
                 <template #description>
                   {{item.desc}} · {{item.overdue ? `已过期 ${item.days} 天` : `剩余 ${item.days} 天`}}
                 </template>
               </a-list-item-meta>
-              <template #extra><a-button size="small" type="primary" ghost @click="()=>message.info('查看详情功能开发中')">查看</a-button></template>
+              <template #extra><a-button size="small" type="primary" ghost @click="router.push('/contract/receivable')">查看</a-button></template>
             </a-list-item>
           </template>
         </a-list>
@@ -30,7 +30,8 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const activeTab = ref('all')
 const reminders = ref<any[]>([])
 const listPagination = { pageSize: 10 }

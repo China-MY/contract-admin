@@ -24,6 +24,9 @@
         <template v-if="column.key==='status'">
           <a-tag :color="record.status==='normal'?'green':'red'">{{record.status==='normal'?'正常':'禁用'}}</a-tag>
         </template>
+        <template v-else-if="column.key==='lastLoginAt'">
+          {{ record.lastLoginAt ? record.lastLoginAt.replace('T',' ').substring(0,19) : '-' }}
+        </template>
         <template v-if="column.key==='action'">
           <a-button type="link" size="small" @click="editRecord(record)">编辑</a-button>
           <a-button type="link" size="small" danger @click="deleteRecord(record)">删除</a-button>

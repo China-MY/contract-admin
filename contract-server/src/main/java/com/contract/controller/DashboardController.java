@@ -45,7 +45,11 @@ public class DashboardController {
 
     @GetMapping("/reminders")
     public Result<?> reminders() {
-        return Result.ok(List.of());
+        return Result.ok(List.of(
+            Map.of("id",1,"type","contract","title","应收合同到期","desc","供应链管理系统项目","overdue",true,"days",105),
+            Map.of("id",2,"type","plan","title","付款计划到期","desc","设备采购","overdue",true,"days",90),
+            Map.of("id",3,"type","contract","title","应付合同到期","desc","技术服务合同","overdue",true,"days",60)
+        ));
     }
 
     @GetMapping("/statistics/overview")

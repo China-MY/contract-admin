@@ -108,6 +108,16 @@ public class ContractController {
         Page<PaymentPlan> result = paymentPlanRepository.findByDirection(direction, PageRequest.of(page - 1, size));
         return Result.ok(Map.of("records", result.getContent(), "total", result.getTotalElements()));
     }
+    @PostMapping("/payment-plans") public Result<?> createPlan(@RequestBody PaymentPlan p) { p.setId(null); paymentPlanRepository.save(p); return Result.ok("保存成功"); }
+    @PutMapping("/payment-plans/{id}") public Result<?> updatePlan(@PathVariable Long id, @RequestBody PaymentPlan body) {
+        PaymentPlan p = paymentPlanRepository.findById(id).orElse(null); if(p==null)return Result.error("不存在");
+        if(body.getContractNo()!=null) p.setContractNo(body.getContractNo()); if(body.getContractName()!=null) p.setContractName(body.getContractName());
+        if(body.getPlannedAmount()!=null) p.setPlannedAmount(body.getPlannedAmount()); if(body.getPlannedDate()!=null) p.setPlannedDate(body.getPlannedDate());
+        if(body.getStatus()!=null) p.setStatus(body.getStatus()); if(body.getPayer()!=null) p.setPayer(body.getPayer());
+        if(body.getPayee()!=null) p.setPayee(body.getPayee()); if(body.getRemark()!=null) p.setRemark(body.getRemark());
+        paymentPlanRepository.save(p); return Result.ok("保存成功");
+    }
+    @DeleteMapping("/payment-plans/{id}") public Result<?> deletePlan(@PathVariable Long id) { paymentPlanRepository.deleteById(id); return Result.ok("删除成功"); }
 
     // === 付款记录 ===
     @GetMapping("/payment-records")
@@ -118,6 +128,17 @@ public class ContractController {
         Page<PaymentRecord> result = paymentRecordRepository.findByDirection(direction, PageRequest.of(page - 1, size));
         return Result.ok(Map.of("records", result.getContent(), "total", result.getTotalElements()));
     }
+    @PostMapping("/payment-records") public Result<?> createRecord(@RequestBody PaymentRecord r) { r.setId(null); paymentRecordRepository.save(r); return Result.ok("保存成功"); }
+    @PutMapping("/payment-records/{id}") public Result<?> updateRecord(@PathVariable Long id, @RequestBody PaymentRecord body) {
+        PaymentRecord r = paymentRecordRepository.findById(id).orElse(null); if(r==null)return Result.error("不存在");
+        if(body.getContractNo()!=null) r.setContractNo(body.getContractNo()); if(body.getContractName()!=null) r.setContractName(body.getContractName());
+        if(body.getAmount()!=null) r.setAmount(body.getAmount()); if(body.getRecordDate()!=null) r.setRecordDate(body.getRecordDate());
+        if(body.getStatus()!=null) r.setStatus(body.getStatus()); if(body.getMethod()!=null) r.setMethod(body.getMethod());
+        if(body.getPayer()!=null) r.setPayer(body.getPayer()); if(body.getPayee()!=null) r.setPayee(body.getPayee());
+        if(body.getRemark()!=null) r.setRemark(body.getRemark());
+        paymentRecordRepository.save(r); return Result.ok("保存成功");
+    }
+    @DeleteMapping("/payment-records/{id}") public Result<?> deleteRecord(@PathVariable Long id) { paymentRecordRepository.deleteById(id); return Result.ok("删除成功"); }
 
     // === 项目 ===
     @GetMapping("/projects")
@@ -132,14 +153,28 @@ public class ContractController {
     @GetMapping("/customers")
     public Result<?> getCustomers(@RequestParam(defaultValue = "1") int page,
                                    @RequestParam(defaultValue = "10") int size) {
-        return Result.ok(Map.of("records", customerRepository.findByType("customer", PageRequest.of(page - 1, size)).getContent()));
+        return Result.ok(customerRepository.findByType("customer", PageRequest.of(page - 1, size)).getContent());
     }
+    @PostMapping("/customers") public Result<?> createCustomer(@RequestBody Customer c) { c.setId(null); customerRepository.save(c); return Result.ok("保存成功"); }
+    @PutMapping("/customers/{id}") public Result<?> updateCustomer(@PathVariable Long id, @RequestBody Customer body) {
+        Customer c = customerRepository.findById(id).orElse(null); if(c==null)return Result.error("不存在");
+        if(body.getName()!=null) c.setName(body.getName()); if(body.getContactPerson()!=null) c.setContactPerson(body.getContactPerson());
+        if(body.getPhone()!=null) c.setPhone(body.getPhone()); if(body.getEmail()!=null) c.setEmail(body.getEmail());
+        if(body.getAddress()!=null) c.setAddress(body.getAddress()); if(body.getRemark()!=null) c.setRemark(body.getRemark());
+        customerRepository.save(c); return Result.ok("保存成功");
+    }
+    @DeleteMapping("/customers/{id}") public Result<?> deleteCustomer(@PathVariable Long id) { customerRepository.deleteById(id); return Result.ok("删除成功"); }
 
     @GetMapping("/suppliers")
     public Result<?> getSuppliers(@RequestParam(defaultValue = "1") int page,
                                    @RequestParam(defaultValue = "10") int size) {
-        return Result.ok(Map.of("records", customerRepository.findByType("supplier", PageRequest.of(page - 1, size)).getContent()));
+        return Result.ok(customerRepository.findByType("supplier", PageRequest.of(page - 1, size)).getContent());
     }
+    @PostMapping("/suppliers") public Result<?> createSupplier(@RequestBody Customer c) { c.setId(null); customerRepository.save(c); return Result.ok("保存成功"); }
+    @PutMapping("/suppliers/{id}") public Result<?> updateSupplier(@PathVariable Long id, @RequestBody Customer body) {
+        return updateCustomer(id, body);
+    }
+    @DeleteMapping("/suppliers/{id}") public Result<?> deleteSupplier(@PathVariable Long id) { customerRepository.deleteById(id); return Result.ok("删除成功"); }
 
     // === 公司 ===
     @GetMapping("/settings/companies")
