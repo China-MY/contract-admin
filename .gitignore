@@ -25,3 +25,5 @@ contract-web/.env
 # Logs
 *.log
 npm-debug.log*
+target/
+*.jar
