@@ -300,6 +300,9 @@ public class ContractController {
         if(body.getName()!=null) c.setName(body.getName()); if(body.getContactPerson()!=null) c.setContactPerson(body.getContactPerson());
         if(body.getPhone()!=null) c.setPhone(body.getPhone()); if(body.getEmail()!=null) c.setEmail(body.getEmail());
         if(body.getAddress()!=null) c.setAddress(body.getAddress()); if(body.getRemark()!=null) c.setRemark(body.getRemark());
+        if(body.getTaxId()!=null) c.setTaxId(body.getTaxId());
+        if(body.getBankName()!=null) c.setBankName(body.getBankName());
+        if(body.getBankAccount()!=null) c.setBankAccount(body.getBankAccount());
         customerRepository.save(c); return Result.ok("保存成功");
     }
     @DeleteMapping("/customers/{id}") public Result<?> deleteCustomer(@PathVariable Long id) { customerRepository.deleteById(id); return Result.ok("删除成功"); }
@@ -512,6 +515,8 @@ public class ContractController {
         if (body.getAccountName() != null) acc.setAccountName(body.getAccountName());
         if (body.getAccountNo() != null) acc.setAccountNo(body.getAccountNo());
         if (body.getBankName() != null) acc.setBankName(body.getBankName());
+        if (body.getBalance() != null) acc.setBalance(body.getBalance());
+        if (body.getIsDefault() != null) acc.setIsDefault(body.getIsDefault());
         if (body.getType() != null) acc.setType(body.getType());
         if (body.getStatus() != null) acc.setStatus(body.getStatus());
         if (body.getRemark() != null) acc.setRemark(body.getRemark());

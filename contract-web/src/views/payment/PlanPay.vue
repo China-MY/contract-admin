@@ -25,7 +25,7 @@
           <a-col :span="8"><a-form-item label="计划金额" name="plannedAmount"><a-input-number v-model:value="form.plannedAmount" style="width:100%" :min="0" :precision="2" /></a-form-item></a-col>
           <a-col :span="8"><a-form-item label="计划日期" name="plannedDate"><a-date-picker v-model:value="form.plannedDate" style="width:100%" /></a-form-item></a-col>
           <a-col :span="8"><a-form-item label="状态" name="status"><a-select v-model:value="form.status"><a-select-option value="unpaid">未付</a-select-option><a-select-option value="partial">部分</a-select-option><a-select-option value="paid">已付</a-select-option></a-select></a-form-item></a-col>
-          <a-col :span="12"><a-form-item label="付款方" name="payer"><SelectCreate v-model="form.payer" :options="partyOptions" placeholder="搜索或新建" @create="(n:string)=>form.payer=n" /></a-form-item></a-col>
+          <a-col :span="12"><a-form-item label="付款方" name="payer"><SelectCreate v-model="form.payer" :options="companyOptions" placeholder="选择我方公司" @create="(n:string)=>form.payer=n" /></a-form-item></a-col>
           <a-col :span="12"><a-form-item label="收款方" name="payee"><SelectCreate v-model="form.payee" :options="partyOptions" placeholder="搜索或新建" @create="(n:string)=>form.payee=n" /></a-form-item></a-col>
           <a-col :span="24"><a-form-item label="备注" name="remark"><a-textarea v-model:value="form.remark" :rows="2" /></a-form-item></a-col>
         </a-row>
@@ -47,7 +47,14 @@ const modalVisible=ref(false);const modalTitle=ref('');const currentId=ref<numbe
 const form=reactive<any>({contractNo:'',contractName:'',plannedAmount:0,plannedDate:null,status:'unpaid',payer:'',payee:'',remark:''})
 const contractOptions=ref<any[]>([])
 const partyOptions=ref<any[]>([])
-async function loadPartyOptions(){try{const r=await authFetch('/api/options');const d=await r.json();if(d.code===200){const cust=(d.data.customers||[]).map((x:any)=>x.label||x);const comp=(d.data.suppliers||[]).map((x:any)=>x.label||x);partyOptions.value=[...new Set([...cust,...comp])].map((x:any)=>({label:x,value:x}))}}catch{}}
+const companyOptions=ref<any[]>([])
+async function loadOptions(){try{const r=await authFetch('/api/options');const d=await r.json();if(d.code===200){
+  const cust=(d.data.customers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
+  const supp=(d.data.suppliers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
+  partyOptions.value=[...cust,...supp]}
+  const r2=await authFetch('/api/settings/companies');const d2=await r2.json();if(d2.code===200)
+  companyOptions.value=(d2.data||[]).map((c:any)=>({label:c.companyName,value:c.companyName}))
+}catch{}}
 function onContractChange(val:string){const found=contractOptions.value.find((c:any)=>c.value===val);if(found)form.contractName=found.name}
 async function handleCreateContract(name:string){const res=await authFetch('/api/contracts',{method:'POST',body:JSON.stringify({contractName:name,direction:'pay'})});if(res.ok){const r2=await authFetch('/api/options');const d2=await r2.json();if(d2.code===200)contractOptions.value=d2.data.contracts||[];form.contractNo='';form.contractName=name}}
 const columns=[
@@ -57,7 +64,7 @@ const columns=[
   {title:'付款状态',key:'status',width:90},{title:'付款方',dataIndex:'payer',width:140},{title:'收款方',dataIndex:'payee',width:140},
   {title:'备注',dataIndex:'remark',width:150},{title:'操作',key:'action',width:140,fixed:'right' as const},
 ]
-onMounted(()=>{loadData();loadPartyOptions();(async()=>{try{const r=await authFetch('/api/options');const d=await r.json();if(d.code===200)contractOptions.value=d.data.contracts||[]}catch{}})()})
+onMounted(()=>{loadData();loadOptions();(async()=>{try{const r=await authFetch('/api/options');const d=await r.json();if(d.code===200)contractOptions.value=d.data.contracts||[]}catch{}})()})
 async function loadData(){loading.value=true;const p=new URLSearchParams({page:String(pagination.current),size:String(pagination.pageSize)})
   const res=await authFetch(`/api/payment-plans?direction=pay&${p}`);const d=await res.json()
   if(d.code===200){dataList.value=d.data.records;pagination.total=d.data.total};loading.value=false}

@@ -33,8 +33,8 @@
       <a-col :span="8"><a-form-item label="不含税额"><a-input :value="(form.amountWithoutTax||0).toFixed(2)" disabled /></a-form-item></a-col>
       <a-col :span="8"><a-form-item label="税额"><a-input :value="(form.taxAmount||0).toFixed(2)" disabled /></a-form-item></a-col>
       <a-col :span="8"><a-form-item label="开票日期" name="issueDate"><a-date-picker v-model:value="form.issueDate" style="width:100%" /></a-form-item></a-col>
-      <a-col :span="8"><a-form-item label="开票方" name="issuer"><SelectCreate v-model="form.issuer" :options="companyOptions" placeholder="搜索或新建" @create="(n:string)=>form.issuer=n" /></a-form-item></a-col>
-      <a-col :span="8"><a-form-item label="收票方" name="receiver"><SelectCreate v-model="form.receiver" :options="customerOptions" placeholder="搜索或新建" @create="(n:string)=>form.receiver=n" /></a-form-item></a-col>
+      <a-col :span="8"><a-form-item label="开票方" name="issuer"><a-input v-model:value="form.issuer" placeholder="请输入开票方名称" /></a-form-item></a-col>
+      <a-col :span="8"><a-form-item label="收票方" name="receiver"><a-input v-model:value="form.receiver" placeholder="请输入收票方名称" /></a-form-item></a-col>
       <a-col :span="24"><a-form-item label="备注" name="remark"><a-textarea v-model:value="form.remark" :rows="2" /></a-form-item></a-col>
     </a-row>
     <div style="text-align:right;margin-top:16px">

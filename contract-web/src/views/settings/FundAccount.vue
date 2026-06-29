@@ -11,6 +11,12 @@
         <template v-if="column.key==='type'">
           {{ record.type === 'company' ? '公司账户' : '个人账户' }}
         </template>
+        <template v-if="column.key==='balance'">
+          ¥{{ (record.balance || 0).toLocaleString() }}
+        </template>
+        <template v-if="column.key==='isDefault'">
+          <a-tag :color="record.isDefault ? 'blue' : 'default'">{{ record.isDefault ? '默认' : '' }}</a-tag>
+        </template>
         <template v-if="column.key==='action'">
           <a-button type="link" size="small" @click="editRecord(record)">编辑</a-button>
           <a-button type="link" size="small" danger @click="deleteRecord(record)">删除</a-button>
@@ -34,6 +40,16 @@
           <a-col :span="12">
             <a-form-item label="开户银行" name="bankName">
               <a-input v-model:value="form.bankName" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="8">
+            <a-form-item label="余额" name="balance">
+              <a-input-number v-model:value="form.balance" style="width:100%" :min="0" :precision="2" />
+            </a-form-item>
+          </a-col>
+          <a-col :span="4">
+            <a-form-item label="默认账户" name="isDefault">
+              <a-switch v-model:checked="form.isDefault" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
@@ -79,15 +95,17 @@ const modalVisible = ref(false)
 const modalTitle = ref('')
 const currentId = ref<number|null>(null)
 const saving = ref(false)
-const form = reactive({ accountName:'', accountNo:'', bankName:'', type:'company', status:'enabled', remark:'' })
+const form = reactive({ accountName:'', accountNo:'', bankName:'', balance:0, isDefault:false, type:'company', status:'enabled', remark:'' })
 
 const columns = [
   { title:'账户名称', dataIndex:'accountName', width:180 },
   { title:'账号', dataIndex:'accountNo', width:180 },
   { title:'开户银行', dataIndex:'bankName', width:200 },
+  { title:'余额', dataIndex:'balance', width:120 },
+  { title:'默认', key:'isDefault', width:70 },
   { title:'类型', key:'type', width:100 },
   { title:'状态', key:'status', width:80 },
-  { title:'备注', dataIndex:'remark', width:250 },
+  { title:'备注', dataIndex:'remark', width:200 },
   { title:'操作', key:'action', width:140, fixed:'right' as const },
 ]
 
@@ -104,7 +122,7 @@ async function loadData() {
 function showAdd() {
   currentId.value = null
   modalTitle.value = '新建资金账户'
-  Object.assign(form, { accountName:'', accountNo:'', bankName:'', type:'company', status:'enabled', remark:'' })
+  Object.assign(form, { accountName:'', accountNo:'', bankName:'', balance:0, isDefault:false, type:'company', status:'enabled', remark:'' })
   modalVisible.value = true
 }
 

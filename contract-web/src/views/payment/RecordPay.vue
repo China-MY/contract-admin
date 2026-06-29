@@ -27,8 +27,8 @@
           <a-col :span="8"><a-form-item label="付款日期"><a-date-picker v-model:value="form.recordDate" style="width:100%" /></a-form-item></a-col>
           <a-col :span="8"><a-form-item label="付款方式"><a-select v-model:value="form.method"><a-select-option value="银行转账">银行转账</a-select-option><a-select-option value="现金">现金</a-select-option></a-select></a-form-item></a-col>
           <a-col :span="8"><a-form-item label="付款状态"><a-select v-model:value="form.status"><a-select-option value="pending">待确认</a-select-option><a-select-option value="confirmed">已付款</a-select-option></a-select></a-form-item></a-col>
-          <a-col :span="8"><a-form-item label="付款方"><SelectCreate v-model="form.payer" :options="partyOptions" placeholder="搜索或新建" @create="(n:string)=>form.payer=n" /></a-form-item></a-col>
-          <a-col :span="8"><a-form-item label="收款方"><SelectCreate v-model="form.payee" :options="partyOptions" placeholder="搜索或新建" @create="(n:string)=>form.payee=n" /></a-form-item></a-col>
+          <a-col :span="8"><a-form-item label="付款方"><SelectCreate v-model="form.payer" :options="companyOptions" placeholder="选择我方公司" @create="(n:string)=>form.payer=n" /></a-form-item></a-col>
+          <a-col :span="8"><a-form-item label="收款方"><SelectCreate v-model="form.payee" :options="partyOptions" placeholder="搜索客户或供应商" @create="(n:string)=>form.payee=n" /></a-form-item></a-col>
           <a-col :span="24"><a-form-item label="备注"><a-textarea v-model:value="form.remark" :rows="2" /></a-form-item></a-col>
         </a-row>
         <div style="text-align:right;margin-top:16px"><a-button @click="modalVisible=false">取消</a-button><a-button type="primary" html-type="submit" style="margin-left:8px" :loading="saving">保存</a-button></div>
@@ -47,7 +47,14 @@ const pagination=reactive({current:1,pageSize:10,total:0,showSizeChanger:true,sh
 const modalVisible=ref(false);const modalTitle=ref('');const currentId=ref<number|null>(null);const saving=ref(false)
 const form=reactive<any>({contractNo:'',contractName:'',invoiceNo:'',amount:0,recordDate:null,method:'银行转账',status:'pending',payer:'',payee:'',remark:''})
 const partyOptions=ref<any[]>([])
-async function loadPartyOptions(){try{const r=await authFetch('/api/options');const d=await r.json();if(d.code===200){const cust=(d.data.customers||[]).map((x:any)=>x.label||x);const comp=(d.data.companies||[]).map((x:any)=>x.label||x);partyOptions.value=[...new Set([...cust,...comp])].map((x:any)=>({label:x,value:x}))}}catch{}}
+const companyOptions=ref<any[]>([])
+async function loadOptions(){try{const r=await authFetch('/api/options');const d=await r.json();if(d.code===200){
+  const cust=(d.data.customers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
+  const supp=(d.data.suppliers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
+  partyOptions.value=[...cust,...supp]}
+  const r2=await authFetch('/api/settings/companies');const d2=await r2.json();if(d2.code===200)
+  companyOptions.value=(d2.data||[]).map((c:any)=>({label:c.companyName,value:c.companyName}))
+}catch{}}
 
 const columns=[
   {title:'合同编号',dataIndex:'contractNo',width:120},{title:'合同名称',dataIndex:'contractName',width:180},
@@ -56,7 +63,7 @@ const columns=[
   {title:'付款方式',dataIndex:'method',width:100},{title:'付款方',dataIndex:'payer',width:120},{title:'收款方',dataIndex:'payee',width:120},
   {title:'备注',dataIndex:'remark',width:150},{title:'操作',key:'action',width:140,fixed:'right' as const},
 ]
-onMounted(()=>{loadData();loadPartyOptions()})
+onMounted(()=>{loadData();loadOptions()})
 async function loadData(){loading.value=true;const p=new URLSearchParams({page:String(pagination.current),size:String(pagination.pageSize)})
   const res=await authFetch(`/api/payment-records?direction=pay&${p}`);const d=await res.json()
   if(d.code===200){dataList.value=d.data.records;pagination.total=d.data.total};loading.value=false}

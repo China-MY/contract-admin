@@ -23,6 +23,9 @@
           <a-col :span="12"><a-form-item label="联系人" name="contactPerson"><a-input v-model:value="form.contactPerson" /></a-form-item></a-col>
           <a-col :span="12"><a-form-item label="联系电话" name="phone"><a-input v-model:value="form.phone" /></a-form-item></a-col>
           <a-col :span="12"><a-form-item label="邮箱" name="email"><a-input v-model:value="form.email" /></a-form-item></a-col>
+          <a-col :span="12"><a-form-item label="税号" name="taxId"><a-input v-model:value="form.taxId" placeholder="统一社会信用代码" /></a-form-item></a-col>
+          <a-col :span="12"><a-form-item label="开户行" name="bankName"><a-input v-model:value="form.bankName" /></a-form-item></a-col>
+          <a-col :span="12"><a-form-item label="银行账号" name="bankAccount"><a-input v-model:value="form.bankAccount" /></a-form-item></a-col>
           <a-col :span="24"><a-form-item label="地址" name="address"><a-input v-model:value="form.address" /></a-form-item></a-col>
           <a-col :span="24"><a-form-item label="备注" name="remark"><a-textarea v-model:value="form.remark" :rows="2" /></a-form-item></a-col>
         </a-row>
@@ -52,13 +55,16 @@ const modalVisible = ref(false)
 const modalTitle = ref('')
 const currentId = ref<number|null>(null)
 const saving = ref(false)
-const form = reactive({ name:'', contactPerson:'', phone:'', email:'', address:'', remark:'' })
+const form = reactive({ name:'', contactPerson:'', phone:'', email:'', address:'', remark:'', taxId:'', bankName:'', bankAccount:'' })
 
 const columns = [
   { title:'名称', dataIndex:'name', width:200 },
   { title:'联系人', dataIndex:'contactPerson', width:120 },
   { title:'联系电话', dataIndex:'phone', width:130 },
   { title:'邮箱', dataIndex:'email', width:180 },
+  { title:'税号', dataIndex:'taxId', width:150 },
+  { title:'开户行', dataIndex:'bankName', width:150 },
+  { title:'银行账号', dataIndex:'bankAccount', width:150 },
   { title:'地址', dataIndex:'address', width:250 },
   { title:'备注', dataIndex:'remark', width:200 },
   { title:'操作', key:'action', width:140, fixed:'right' as const },
