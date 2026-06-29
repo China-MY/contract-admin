@@ -45,6 +45,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
+import { authFetch } from '../../utils/auth'
 import ContractForm from './ContractForm.vue'
 
 const searchForm = reactive({ keyword: '', project: '', supplier: '', paymentStatus: '' })
@@ -83,11 +84,11 @@ onMounted(() => { loadData(); loadOptions() })
 
 async function loadOptions() {
   try {
-    const res = await fetch('/api/options')
+    const res = await authFetch('/api/options')
     const d = await res.json()
     if (d.code === 200) {
-      if (d.data.projects) projectOptions.value = d.data.projects
-      if (d.data.suppliers) supplierOptions.value = d.data.suppliers
+      projectOptions.value = (d.data.projects || []).map((p:any) => p.label || p.value || p)
+      supplierOptions.value = (d.data.suppliers || []).map((s:any) => s.label || s.value || s)
     }
   } catch {}
 }
@@ -95,7 +96,7 @@ async function loadOptions() {
 async function loadData() {
   loading.value = true
   const params = new URLSearchParams({ page:String(pagination.current), size:String(pagination.pageSize), ...searchForm })
-  const res = await fetch(`/api/contracts?direction=payable&${params}`)
+  const res = await authFetch(`/api/contracts?direction=payable&${params}`)
   const data = await res.json()
   if (data.code === 200) { dataList.value = data.data.records; pagination.total = data.data.total; totalAmount.value = data.data.totalAmount||0 }
   loading.value = false

@@ -69,8 +69,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { authFetch } from '../../utils/auth'
 import * as echarts from 'echarts'
 
 const router = useRouter()
@@ -80,12 +81,14 @@ const pieChartRef = ref<HTMLElement>()
 
 onMounted(async () => {
   try {
-    const res = await fetch('/api/dashboard/summary')
+    const res = await authFetch('/api/dashboard/summary')
     const data = await res.json()
     if (data.code === 200 && data.data) {
       if (data.data.cards) statCards.value = data.data.cards
       if (data.data.reminders) recentReminders.value = data.data.reminders
       if (data.data.transactions) recentTransactions.value = data.data.transactions
+      // 等待 DOM 渲染完成后初始化 ECharts
+      await nextTick()
       renderChart(data.data)
     }
   } catch (e) {
@@ -94,6 +97,7 @@ onMounted(async () => {
 })
 
 function renderChart(data: any) {
+  setTimeout(() => {
   if (trendChartRef.value) {
     const chart = echarts.init(trendChartRef.value)
     chart.setOption({
@@ -122,6 +126,7 @@ function renderChart(data: any) {
       }]
     })
   }
+  }, 100)
 }
 
 function goToReminder() {

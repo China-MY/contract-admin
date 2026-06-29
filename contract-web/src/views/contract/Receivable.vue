@@ -103,6 +103,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
+import { authFetch } from '../../utils/auth'
 import ContractForm from './ContractForm.vue'
 
 const searchForm = reactive({ keyword: '', project: '', customer: '', receiptStatus: '' })
@@ -162,7 +163,7 @@ async function loadData() {
     page: String(pagination.current), size: String(pagination.pageSize),
     ...searchForm
   })
-  const res = await fetch(`/api/contracts?direction=receivable&${params}`)
+  const res = await authFetch(`/api/contracts?direction=receivable&${params}`)
   const data = await res.json()
   if (data.code === 200) {
     dataList.value = data.data.records
@@ -173,12 +174,14 @@ async function loadData() {
 }
 
 async function loadOptions() {
-  const res = await fetch('/api/options')
-  const data = await res.json()
-  if (data.code === 200) {
-    projects.value = data.data.projects || []
-    customers.value = data.data.customers || []
-  }
+  try {
+    const res = await authFetch('/api/options')
+    const data = await res.json()
+    if (data.code === 200) {
+      projects.value = (data.data.projects || []).map((p:any) => p.label || p.value || p)
+      customers.value = (data.data.customers || []).map((c:any) => c.label || c.value || c)
+    }
+  } catch {}
 }
 
 function resetSearch() {

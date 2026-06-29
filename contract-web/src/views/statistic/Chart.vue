@@ -19,25 +19,75 @@
   </a-card></div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import { SyncOutlined } from '@ant-design/icons-vue'
+import { authFetch } from '../../utils/auth'
 import * as echarts from 'echarts'
+
 const trendRef=ref<HTMLElement>();const receivablePieRef=ref<HTMLElement>();const payablePieRef=ref<HTMLElement>()
 const incomeTrendRef=ref<HTMLElement>();const receiptPieRef=ref<HTMLElement>();const paymentPieRef=ref<HTMLElement>()
-const summaryCards=ref([{label:'应收合同总金额',value:'¥76,100,823',suffix:'',color:'#1890ff'},{label:'收款比例',value:'1.1%',suffix:'',color:'#52c41a'},{label:'应付合同总金额',value:'¥4,604,670',suffix:'',color:'#ff4d4f'},{label:'付款比例',value:'17.3%',suffix:'',color:'#faad14'}])
+const summaryCards=ref<any[]>([])
 
-function renderCharts(data:any){
-  if(!data)return
-  nextTick(()=>{
-    if(trendRef.value){echarts.init(trendRef.value).setOption({tooltip:{trigger:'axis'},xAxis:{type:'category',data:['2021','2022','2023','2024','2025','2026']},yAxis:{type:'value'},series:[{data:data.trend||[12,28,35,42,38,45],type:'line',smooth:true,areaStyle:{opacity:0.3}}]})}
-    if(receivablePieRef.value){echarts.init(receivablePieRef.value).setOption({tooltip:{trigger:'item'},series:[{type:'pie',radius:['30%','60%'],data:data.receivableTypes||[{name:'销售合同',value:16},{name:'服务合同',value:7},{name:'采购合同',value:1},{name:'北斗续费',value:1}]}]})}
-    if(payablePieRef.value){echarts.init(payablePieRef.value).setOption({tooltip:{trigger:'item'},series:[{type:'pie',radius:['30%','60%'],data:data.payableTypes||[{name:'采购合同',value:8},{name:'销售合同',value:2},{name:'服务合同',value:3}]}]})}
-    if(incomeTrendRef.value){echarts.init(incomeTrendRef.value).setOption({tooltip:{trigger:'axis'},legend:{data:['收入','支出']},xAxis:{type:'category',data:['1月','2月','3月','4月','5月','6月']},yAxis:{type:'value'},series:[{name:'收入',type:'bar',data:data.income||[120,200,150,80,70,110]},{name:'支出',type:'bar',data:data.expense||[30,50,40,20,15,25]}]})}
-    if(receiptPieRef.value){echarts.init(receiptPieRef.value).setOption({tooltip:{trigger:'item'},series:[{type:'pie',radius:['30%','60%'],data:[{name:'未收款',value:15},{name:'部分收款',value:4},{name:'已完成',value:6}]}]})}
-    if(paymentPieRef.value){echarts.init(paymentPieRef.value).setOption({tooltip:{trigger:'item'},series:[{type:'pie',radius:['30%','60%'],data:[{name:'未付款',value:8},{name:'部分付款',value:3},{name:'已完成',value:2}]}]})}
-  })
+const monthLabels = ['1月','2月','3月','4月','5月','6月']
+const yearLabels = ['2021','2022','2023','2024','2025','2026']
+
+function renderCharts(data: any) {
+  if (!data) return
+  setTimeout(() => {
+    if (trendRef.value && trendRef.value.offsetHeight > 0) {
+      echarts.init(trendRef.value).setOption({
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: data.trendLabels || yearLabels },
+        yAxis: { type: 'value', axisLabel: { formatter: '¥{value}' } },
+        series: [{ data: data.trend || [0,0,0,0,0,0], type: 'line', smooth: true, areaStyle: { opacity: 0.3 }, lineStyle: { width: 3 }, itemStyle: { color: '#1890ff' } }]
+      })
+    }
+    if (receivablePieRef.value && receivablePieRef.value.offsetHeight > 0) {
+      echarts.init(receivablePieRef.value).setOption({
+        tooltip: { trigger: 'item' },
+        series: [{ type: 'pie', radius: ['30%', '60%'], data: data.receivableTypes || [], label: { formatter: '{b}: {c}' } }]
+      })
+    }
+    if (payablePieRef.value && payablePieRef.value.offsetHeight > 0) {
+      echarts.init(payablePieRef.value).setOption({
+        tooltip: { trigger: 'item' },
+        series: [{ type: 'pie', radius: ['30%', '60%'], data: data.payableTypes || [], label: { formatter: '{b}: {c}' } }]
+      })
+    }
+    if (incomeTrendRef.value && incomeTrendRef.value.offsetHeight > 0) {
+      echarts.init(incomeTrendRef.value).setOption({
+        tooltip: { trigger: 'axis' }, legend: { data: ['收入', '支出'] },
+        xAxis: { type: 'category', data: monthLabels },
+        yAxis: { type: 'value' },
+        series: [
+          { name: '收入', type: 'bar', data: data.monthlyIncome || [0,0,0,0,0,0] },
+          { name: '支出', type: 'bar', data: data.monthlyExpense || [0,0,0,0,0,0] }
+        ]
+      })
+    }
+    if (receiptPieRef.value && receiptPieRef.value.offsetHeight > 0) {
+      echarts.init(receiptPieRef.value).setOption({
+        tooltip: { trigger: 'item' },
+        series: [{ type: 'pie', radius: ['30%', '60%'], data: data.receiptStatus || [], label: { formatter: '{b}: {c}' } }]
+      })
+    }
+    if (paymentPieRef.value && paymentPieRef.value.offsetHeight > 0) {
+      echarts.init(paymentPieRef.value).setOption({
+        tooltip: { trigger: 'item' },
+        series: [{ type: 'pie', radius: ['30%', '60%'], data: data.paymentStatus || [], label: { formatter: '{b}: {c}' } }]
+      })
+    }
+  }, 200)
 }
-async function loadData(){const res=await fetch('/api/statistics/chart');const d=await res.json();if(d.code===200)renderCharts(d.data)}
-function refresh(){loadData()}
+
+async function loadData() {
+  const res = await authFetch('/api/statistics/chart')
+  const d = await res.json()
+  if (d.code === 200 && d.data) {
+    if (d.data.summaryCards) summaryCards.value = d.data.summaryCards
+    renderCharts(d.data)
+  }
+}
+function refresh() { loadData() }
 onMounted(loadData)
 </script>

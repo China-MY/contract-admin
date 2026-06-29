@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { SyncOutlined } from '@ant-design/icons-vue'
+import { authFetch } from '../../utils/auth'
 const dataList=ref<any[]>([]);const loading=ref(false)
 const pagination=reactive({current:1,pageSize:10,total:0,showSizeChanger:true,showTotal:(t:number)=>`共 ${t} 条`})
 const columns=[
@@ -35,7 +36,7 @@ const columns=[
 ]
 onMounted(loadData)
 async function loadData(){loading.value=true;const p=new URLSearchParams({page:String(pagination.current),size:String(pagination.pageSize)})
-  const res=await fetch(`/api/statistics/projects?${p}`);const d=await res.json()
+  const res=await authFetch(`/api/statistics/projects?${p}`);const d=await res.json()
   if(d.code===200){dataList.value=d.data.records;pagination.total=d.data.total};loading.value=false}
 function refresh(){loadData()}
 function onChange(pag:any){pagination.current=pag.current;pagination.pageSize=pag.pageSize;loadData()}

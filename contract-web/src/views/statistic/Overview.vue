@@ -15,12 +15,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { SyncOutlined } from '@ant-design/icons-vue'
+import { authFetch } from '../../utils/auth'
 const summary = ref<any[]>([])
 const receivableStats = ref<any[]>([])
 const payableStats = ref<any[]>([])
 const statCols = [{title:'指标',dataIndex:'indicator',width:120},{title:'金额',dataIndex:'amount',width:160},{title:'比例',dataIndex:'rate',width:80}]
 async function loadData(){
-  const res=await fetch('/api/statistics/overview');const d=await res.json()
+  const res=await authFetch('/api/statistics/overview');const d=await res.json()
   if(d.code===200){summary.value=d.data.summary;receivableStats.value=d.data.receivable;payableStats.value=d.data.payable}
 }
 function refresh(){loadData()}

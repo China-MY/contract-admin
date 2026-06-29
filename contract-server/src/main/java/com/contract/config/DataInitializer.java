@@ -16,12 +16,21 @@ public class DataInitializer implements CommandLineRunner {
     private final PostRepository postRepository;
     private final LoginLogRepository loginLogRepository;
     private final OperationLogRepository operationLogRepository;
+    private final ContractRepository contractRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final PaymentPlanRepository paymentPlanRepository;
+    private final PaymentRecordRepository paymentRecordRepository;
+    private final ProjectRepository projectRepository;
+    private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(UserRepository userRepository, CompanyRepository companyRepository,
                            DictItemRepository dictItemRepository,
                            RoleRepository roleRepository, DeptRepository deptRepository, PostRepository postRepository,
                            LoginLogRepository loginLogRepository, OperationLogRepository operationLogRepository,
+                           ContractRepository contractRepository, InvoiceRepository invoiceRepository,
+                           PaymentPlanRepository paymentPlanRepository, PaymentRecordRepository paymentRecordRepository,
+                           ProjectRepository projectRepository, CustomerRepository customerRepository,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
@@ -31,6 +40,12 @@ public class DataInitializer implements CommandLineRunner {
         this.postRepository = postRepository;
         this.loginLogRepository = loginLogRepository;
         this.operationLogRepository = operationLogRepository;
+        this.contractRepository = contractRepository;
+        this.invoiceRepository = invoiceRepository;
+        this.paymentPlanRepository = paymentPlanRepository;
+        this.paymentRecordRepository = paymentRecordRepository;
+        this.projectRepository = projectRepository;
+        this.customerRepository = customerRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -151,6 +166,138 @@ public class DataInitializer implements CommandLineRunner {
                 log.setDetail(o[4]); log.setIp(o[5]);
                 log.setOperationTime(java.time.LocalDateTime.parse(o[6]));
                 operationLogRepository.save(log);
+            }
+        }
+
+        // 示例业务数据
+        java.time.LocalDate now = java.time.LocalDate.now();
+        if (contractRepository.count() == 0) {
+            // 创建客户
+            String[][] custs = {{"南京科技公司","customer"},{"中铁建二十局","customer"},{"福州赢雅科技","customer"},{"联想集团","supplier"},{"联通福建分公司","supplier"}};
+            for (String[] c : custs) {
+                com.contract.entity.Customer cu = new com.contract.entity.Customer();
+                cu.setName(c[0]); cu.setType(c[1]); cu.setPhone("1380000" + (int)(Math.random()*9000+1000));
+                customerRepository.save(cu);
+            }
+            // 创建项目
+            String[][] projs = {{"NM260101","苏州爱华MES项目","实施项目","in_progress","2026","张总","1000000","苏州爱华"},
+                               {"LY-BTH-01","白炭黑绿化工程","东大洋-1","in_progress","2026","李经理","1000000","中铁建二十局"},
+                               {"202603001","智慧校园项目","集成项目","in_progress","2026","王工","5000000",""}};
+            for (String[] p : projs) {
+                com.contract.entity.Project project = new com.contract.entity.Project();
+                project.setProjectNo(p[0]); project.setProjectName(p[1]); project.setProjectType(p[2]);
+                project.setStatus(p[3]); project.setYear(p[4]); project.setManager(p[5]);
+                project.setBudgetAmount(new java.math.BigDecimal(p[6])); project.setCustomerName(p[7]);
+                project.setStartDate(now.minusMonths(3)); project.setEndDate(now.plusMonths(6));
+                projectRepository.save(project);
+            }
+        }
+        if (contractRepository.count() == 0) {
+            // 应收合同
+            Object[][] recContracts = {
+                {"HT20260501","智慧校园平台开发合同","销售合同","receivable","筱凡网络科技","南京科技公司","NM260101","苏州爱华MES项目","已签订",now.minusMonths(2),now.plusMonths(10),"fixed",580000d,580000d,120000d,200000d,460000d,380000d,0d,80000d,"partial",20.68,34.48},
+                {"HT20260502","白炭黑生产系统","销售合同","receivable","成者为译","中铁建二十局","LY-BTH-01","白炭黑绿化工程","已签订",now.minusMonths(1),now.plusMonths(8),"fixed",1200000d,1150000d,300000d,500000d,850000d,650000d,0d,200000d,"partial",26.09,43.48},
+                {"HT20260503","MES系统运维服务","服务合同","receivable","筱凡网络科技","福州赢雅科技","NM260101","苏州爱华MES项目","已签订",now.minusMonths(1),now.plusMonths(12),"fixed",96000d,96000d,32000d,32000d,64000d,64000d,0d,0d,"partial",33.33,33.33},
+                {"HT20260504","校园网络改造","销售合同","receivable","成者为译","南京科技公司","","","未签订",null,null,"fixed",45000d,45000d,0d,0d,45000d,45000d,0d,0d,"未收款",0d,0d},
+                {"HT20260505","设备维护合同","服务合同","receivable","筱凡网络科技","南京科技公司","","","已归档",now.minusMonths(6),now.minusMonths(1),"fixed",24000d,24000d,24000d,24000d,0d,0d,0d,0d,"已完成",100d,100d},
+            };
+            for (Object[] c : recContracts) {
+                com.contract.entity.Contract ct = new com.contract.entity.Contract();
+                ct.setContractNo((String)c[0]); ct.setContractName((String)c[1]); ct.setContractType((String)c[2]);
+                ct.setDirection((String)c[3]); ct.setOurCompany((String)c[4]); ct.setCounterparty((String)c[5]);
+                ct.setProjectNo((String)c[6]); ct.setProjectName((String)c[7]); ct.setStatus((String)c[8]);
+                ct.setSignDate((java.time.LocalDate)c[9]); ct.setEndDate((java.time.LocalDate)c[10]);
+                ct.setPricingMethod((String)c[11]);
+                ct.setContractAmount(java.math.BigDecimal.valueOf((Double)c[12]));
+                ct.setSettlementAmount(java.math.BigDecimal.valueOf((Double)c[13]));
+                ct.setReceivedAmount(java.math.BigDecimal.valueOf((Double)c[14]));
+                ct.setInvoicedAmount(java.math.BigDecimal.valueOf((Double)c[15]));
+                ct.setUnreceivedAmount(java.math.BigDecimal.valueOf((Double)c[16]));
+                ct.setUninvoicedAmount(java.math.BigDecimal.valueOf((Double)c[17]));
+                ct.setReceivedNotInvoiced(java.math.BigDecimal.valueOf((Double)c[18]));
+                ct.setInvoicedNotReceived(java.math.BigDecimal.valueOf((Double)c[19]));
+                ct.setReceiptStatus((String)c[20]);
+                ct.setReceiptProgress(java.math.BigDecimal.valueOf((Double)c[21]));
+                ct.setInvoiceProgress(java.math.BigDecimal.valueOf((Double)c[22]));
+                ct.setProfit(java.math.BigDecimal.valueOf((Double)c[12] * 0.15));
+                contractRepository.save(ct);
+            }
+            // 应付合同
+            Object[][] payContracts = {
+                {"CG20260501","服务器采购","采购合同","payable","筱凡网络科技","联想集团","NM260101","苏州爱华MES项目","已签订",now.minusMonths(1),now.plusMonths(6),"fixed",180000d,180000d,90000d,90000d,90000d,90000d,0d,0d,"partial",50d,50d},
+                {"CG20260502","网络设备采购","采购合同","payable","成者为译","联通福建分公司","LY-BTH-01","白炭黑绿化工程","已签订",now.minusMonths(2),now.plusMonths(4),"fixed",350000d,340000d,100000d,0d,250000d,340000d,100000d,0d,"partial",29.41,0d},
+                {"CG20260503","软件授权费","采购合同","payable","筱凡网络科技","南京科技公司","","","已签订",now,now.plusMonths(12),"fixed",50000d,50000d,0d,0d,50000d,50000d,0d,0d,"未付款",0d,0d},
+            };
+            for (Object[] c : payContracts) {
+                com.contract.entity.Contract ct = new com.contract.entity.Contract();
+                ct.setContractNo((String)c[0]); ct.setContractName((String)c[1]); ct.setContractType((String)c[2]);
+                ct.setDirection((String)c[3]); ct.setOurCompany((String)c[4]); ct.setCounterparty((String)c[5]);
+                ct.setProjectNo((String)c[6]); ct.setProjectName((String)c[7]); ct.setStatus((String)c[8]);
+                ct.setSignDate((java.time.LocalDate)c[9]); ct.setEndDate((java.time.LocalDate)c[10]);
+                ct.setPricingMethod((String)c[11]);
+                ct.setContractAmount(java.math.BigDecimal.valueOf((Double)c[12]));
+                ct.setSettlementAmount(java.math.BigDecimal.valueOf((Double)c[13]));
+                ct.setPaidAmount(java.math.BigDecimal.valueOf((Double)c[14]));
+                ct.setReceivedInvoiceAmount(java.math.BigDecimal.valueOf((Double)c[15]));
+                ct.setUnpaidAmount(java.math.BigDecimal.valueOf((Double)c[16]));
+                ct.setUnreceivedInvoiceAmount(java.math.BigDecimal.valueOf((Double)c[17]));
+                ct.setPaidNotReceivedInvoice(java.math.BigDecimal.valueOf((Double)c[18]));
+                ct.setReceivedInvoiceNotPaid(java.math.BigDecimal.valueOf((Double)c[19]));
+                ct.setPaymentStatus((String)c[20]);
+                ct.setPaymentProgress(java.math.BigDecimal.valueOf((Double)c[21]));
+                ct.setReceivedInvoiceProgress(java.math.BigDecimal.valueOf((Double)c[22]));
+                contractRepository.save(ct);
+            }
+            // 发票
+            Object[][] invs = {
+                {"HT20260501","智慧校园平台开发合同","INV2026001","output","专用发票",212000d,187610.62d,0.13d,24389.38d,now.minusDays(30),"-","筱凡网络科技","","南京科技公司",""},
+                {"HT20260502","白炭黑生产系统","INV2026002","output","专用发票",500000d,442477.88d,0.13d,57522.12d,now.minusDays(15),"-","成者为译","","中铁建二十局",""},
+                {"HT20260503","MES系统运维服务","INV2026003","output","专用发票",32000d,31683.17d,0.01d,316.83d,now.minusDays(5),"-","筱凡网络科技","","福州赢雅科技",""},
+                {"CG20260501","服务器采购","INV2026004","input","专用发票",90000d,79646.02d,0.13d,10353.98d,now.minusDays(20),"-","联想集团","","筱凡网络科技",""},
+            };
+            for (Object[] i : invs) {
+                com.contract.entity.Invoice inv = new com.contract.entity.Invoice();
+                inv.setContractNo((String)i[0]); inv.setContractName((String)i[1]); inv.setInvoiceNo((String)i[2]);
+                inv.setDirection((String)i[3]); inv.setType((String)i[4]);
+                inv.setAmountWithTax(java.math.BigDecimal.valueOf((Double)i[5]));
+                inv.setAmountWithoutTax(java.math.BigDecimal.valueOf((Double)i[6]));
+                inv.setTaxRate(java.math.BigDecimal.valueOf((Double)i[7]));
+                inv.setTaxAmount(java.math.BigDecimal.valueOf((Double)i[8]));
+                inv.setIssueDate((java.time.LocalDate)i[9]); inv.setVoucherNo((String)i[10]);
+                inv.setIssuer((String)i[11]); inv.setReceiver((String)i[13]);
+                invoiceRepository.save(inv);
+            }
+            // 收款计划
+            Object[][] plans = {
+                {"HT20260501","智慧校园平台开发合同","PS-202605-001","receipt",120000d,120000d,0d,now.plusDays(30),"paid",100d,"南京科技公司","筱凡网络科技"},
+                {"HT20260501","智慧校园平台开发合同","PS-202606-002","receipt",460000d,0d,460000d,now.plusDays(90),"unpaid",0d,"南京科技公司","筱凡网络科技"},
+                {"HT20260502","白炭黑生产系统","PS-202605-003","receipt",300000d,300000d,0d,now.minusDays(10),"paid",100d,"中铁建二十局","成者为译"},
+            };
+            for (Object[] p : plans) {
+                com.contract.entity.PaymentPlan plan = new com.contract.entity.PaymentPlan();
+                plan.setContractNo((String)p[0]); plan.setContractName((String)p[1]); plan.setPlanCode((String)p[2]);
+                plan.setDirection((String)p[3]);
+                plan.setPlannedAmount(java.math.BigDecimal.valueOf((Double)p[4]));
+                plan.setPaidAmount(java.math.BigDecimal.valueOf((Double)p[5]));
+                plan.setUnpaidAmount(java.math.BigDecimal.valueOf((Double)p[6]));
+                plan.setPlannedDate((java.time.LocalDate)p[7]); plan.setStatus((String)p[8]);
+                plan.setProgress(java.math.BigDecimal.valueOf((Double)p[9]));
+                plan.setPayer((String)p[10]); plan.setPayee((String)p[11]);
+                paymentPlanRepository.save(plan);
+            }
+            // 收款记录
+            Object[][] records = {
+                {"HT20260501","智慧校园平台开发合同","RC-202605-001","receipt",now.minusDays(25),120000d,"confirmed","银行转账","南京科技公司","筱凡网络科技"},
+                {"HT20260502","白炭黑生产系统","RC-202605-002","receipt",now.minusDays(10),300000d,"confirmed","银行转账","中铁建二十局","成者为译"},
+                {"HT20260501","智慧校园平台开发合同","RC-202605-003","receipt",now.minusDays(5),10000d,"pending","银行转账","南京科技公司","筱凡网络科技"},
+            };
+            for (Object[] r : records) {
+                com.contract.entity.PaymentRecord rec = new com.contract.entity.PaymentRecord();
+                rec.setContractNo((String)r[0]); rec.setContractName((String)r[1]); rec.setRecordNo((String)r[2]);
+                rec.setDirection((String)r[3]); rec.setRecordDate((java.time.LocalDate)r[4]);
+                rec.setAmount(java.math.BigDecimal.valueOf((Double)r[5])); rec.setStatus((String)r[6]);
+                rec.setMethod((String)r[7]); rec.setPayer((String)r[8]); rec.setPayee((String)r[9]);
+                paymentRecordRepository.save(rec);
             }
         }
 

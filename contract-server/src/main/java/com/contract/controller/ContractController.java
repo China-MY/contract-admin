@@ -89,6 +89,40 @@ public class ContractController {
         return Result.ok(data);
     }
 
+    @PostMapping("/contracts")
+    public Result<?> createContract(@RequestBody Contract c) {
+        c.setId(null);
+        if (c.getContractNo() == null || c.getContractNo().isEmpty()) {
+            long count = contractRepository.count();
+            String prefix = "receivable".equals(c.getDirection()) ? "CT-R" : "CT-P";
+            c.setContractNo(prefix + "-" + java.time.LocalDate.now().toString().replace("-", "") + "-" + String.format("%03d", count + 1));
+        }
+        contractRepository.save(c);
+        return Result.ok("保存成功");
+    }
+
+    @PutMapping("/contracts/{id}")
+    public Result<?> updateContract(@PathVariable Long id, @RequestBody Contract body) {
+        Contract c = contractRepository.findById(id).orElse(null);
+        if (c == null) return Result.error("合同不存在");
+        if (body.getContractName() != null) c.setContractName(body.getContractName());
+        if (body.getContractType() != null) c.setContractType(body.getContractType());
+        if (body.getOurCompany() != null) c.setOurCompany(body.getOurCompany());
+        if (body.getCounterparty() != null) c.setCounterparty(body.getCounterparty());
+        if (body.getProjectNo() != null) c.setProjectNo(body.getProjectNo());
+        if (body.getProjectName() != null) c.setProjectName(body.getProjectName());
+        if (body.getManager() != null) c.setManager(body.getManager());
+        if (body.getStatus() != null) c.setStatus(body.getStatus());
+        if (body.getSignDate() != null) c.setSignDate(body.getSignDate());
+        if (body.getEndDate() != null) c.setEndDate(body.getEndDate());
+        if (body.getPricingMethod() != null) c.setPricingMethod(body.getPricingMethod());
+        if (body.getContractAmount() != null) c.setContractAmount(body.getContractAmount());
+        if (body.getSettlementAmount() != null) c.setSettlementAmount(body.getSettlementAmount());
+        if (body.getRemark() != null) c.setRemark(body.getRemark());
+        contractRepository.save(c);
+        return Result.ok("保存成功");
+    }
+
     // === 发票 ===
     @GetMapping("/invoices")
     public Result<?> getInvoices(
@@ -97,6 +131,25 @@ public class ContractController {
             @RequestParam(defaultValue = "10") int size) {
         Page<Invoice> result = invoiceRepository.findByDirection(direction, PageRequest.of(page - 1, size));
         return Result.ok(Map.of("records", result.getContent(), "total", result.getTotalElements()));
+    }
+    @PostMapping("/invoices") public Result<?> createInvoice(@RequestBody Invoice inv) {
+        inv.setId(null);
+        if (inv.getInvoiceNo() == null || inv.getInvoiceNo().isEmpty()) {
+            long count = invoiceRepository.count();
+            inv.setInvoiceNo("INV-" + java.time.LocalDate.now().toString().replace("-", "") + "-" + String.format("%03d", count + 1));
+        }
+        invoiceRepository.save(inv); return Result.ok("保存成功");
+    }
+    @PutMapping("/invoices/{id}") public Result<?> updateInvoice(@PathVariable Long id, @RequestBody Invoice body) {
+        Invoice inv = invoiceRepository.findById(id).orElse(null); if(inv==null)return Result.error("发票不存在");
+        if(body.getContractNo()!=null) inv.setContractNo(body.getContractNo()); if(body.getContractName()!=null) inv.setContractName(body.getContractName());
+        if(body.getAmountWithTax()!=null) inv.setAmountWithTax(body.getAmountWithTax());
+        if(body.getAmountWithoutTax()!=null) inv.setAmountWithoutTax(body.getAmountWithoutTax());
+        if(body.getTaxRate()!=null) inv.setTaxRate(body.getTaxRate()); if(body.getTaxAmount()!=null) inv.setTaxAmount(body.getTaxAmount());
+        if(body.getIssueDate()!=null) inv.setIssueDate(body.getIssueDate());
+        if(body.getIssuer()!=null) inv.setIssuer(body.getIssuer()); if(body.getReceiver()!=null) inv.setReceiver(body.getReceiver());
+        if(body.getRemark()!=null) inv.setRemark(body.getRemark());
+        invoiceRepository.save(inv); return Result.ok("保存成功");
     }
 
     // === 付款计划 ===
@@ -108,7 +161,15 @@ public class ContractController {
         Page<PaymentPlan> result = paymentPlanRepository.findByDirection(direction, PageRequest.of(page - 1, size));
         return Result.ok(Map.of("records", result.getContent(), "total", result.getTotalElements()));
     }
-    @PostMapping("/payment-plans") public Result<?> createPlan(@RequestBody PaymentPlan p) { p.setId(null); paymentPlanRepository.save(p); return Result.ok("保存成功"); }
+    @PostMapping("/payment-plans") public Result<?> createPlan(@RequestBody PaymentPlan p) {
+        p.setId(null);
+        if (p.getPlanCode() == null || p.getPlanCode().isEmpty()) {
+            long count = paymentPlanRepository.count();
+            String prefix = "receipt".equals(p.getDirection()) ? "PS" : "PF";
+            p.setPlanCode(prefix + "-" + java.time.LocalDate.now().toString().replace("-", "") + "-" + String.format("%03d", count + 1));
+        }
+        paymentPlanRepository.save(p); return Result.ok("保存成功");
+    }
     @PutMapping("/payment-plans/{id}") public Result<?> updatePlan(@PathVariable Long id, @RequestBody PaymentPlan body) {
         PaymentPlan p = paymentPlanRepository.findById(id).orElse(null); if(p==null)return Result.error("不存在");
         if(body.getContractNo()!=null) p.setContractNo(body.getContractNo()); if(body.getContractName()!=null) p.setContractName(body.getContractName());
@@ -128,7 +189,15 @@ public class ContractController {
         Page<PaymentRecord> result = paymentRecordRepository.findByDirection(direction, PageRequest.of(page - 1, size));
         return Result.ok(Map.of("records", result.getContent(), "total", result.getTotalElements()));
     }
-    @PostMapping("/payment-records") public Result<?> createRecord(@RequestBody PaymentRecord r) { r.setId(null); paymentRecordRepository.save(r); return Result.ok("保存成功"); }
+    @PostMapping("/payment-records") public Result<?> createRecord(@RequestBody PaymentRecord r) {
+        r.setId(null);
+        if (r.getRecordNo() == null || r.getRecordNo().isEmpty()) {
+            long count = paymentRecordRepository.count();
+            String prefix = "receipt".equals(r.getDirection()) ? "RC" : "PA";
+            r.setRecordNo(prefix + "-" + java.time.LocalDate.now().toString().replace("-", "") + "-" + String.format("%03d", count + 1));
+        }
+        paymentRecordRepository.save(r); return Result.ok("保存成功");
+    }
     @PutMapping("/payment-records/{id}") public Result<?> updateRecord(@PathVariable Long id, @RequestBody PaymentRecord body) {
         PaymentRecord r = paymentRecordRepository.findById(id).orElse(null); if(r==null)return Result.error("不存在");
         if(body.getContractNo()!=null) r.setContractNo(body.getContractNo()); if(body.getContractName()!=null) r.setContractName(body.getContractName());
@@ -148,6 +217,22 @@ public class ContractController {
         Page<Project> result = projectRepository.findAll(PageRequest.of(page - 1, size));
         return Result.ok(Map.of("records", result.getContent(), "total", result.getTotalElements()));
     }
+    @PostMapping("/projects") public Result<?> createProject(@RequestBody Project p) {
+        p.setId(null);
+        if (p.getProjectNo() == null || p.getProjectNo().isEmpty()) {
+            long count = projectRepository.count();
+            p.setProjectNo("PRJ-" + java.time.LocalDate.now().toString().replace("-", "") + "-" + String.format("%03d", count + 1));
+        }
+        projectRepository.save(p); return Result.ok("保存成功");
+    }
+    @PutMapping("/projects/{id}") public Result<?> updateProject(@PathVariable Long id, @RequestBody Project body) {
+        Project p = projectRepository.findById(id).orElse(null); if(p==null)return Result.error("不存在");
+        if(body.getProjectNo()!=null) p.setProjectNo(body.getProjectNo()); if(body.getProjectName()!=null) p.setProjectName(body.getProjectName());
+        if(body.getProjectType()!=null) p.setProjectType(body.getProjectType()); if(body.getStatus()!=null) p.setStatus(body.getStatus());
+        if(body.getManager()!=null) p.setManager(body.getManager()); if(body.getBudgetAmount()!=null) p.setBudgetAmount(body.getBudgetAmount());
+        projectRepository.save(p); return Result.ok("保存成功");
+    }
+    @DeleteMapping("/projects/{id}") public Result<?> deleteProject(@PathVariable Long id) { projectRepository.deleteById(id); return Result.ok("删除成功"); }
 
     // === 客户/供应商 ===
     @GetMapping("/customers")
@@ -375,9 +460,10 @@ public class ContractController {
     @GetMapping("/options")
     public Result<?> getOptions() {
         return Result.ok(Map.of(
-            "projects", projectRepository.findAll().stream().map(Project::getProjectName).collect(Collectors.toList()),
-            "customers", customerRepository.findByType("customer", PageRequest.of(0, 100)).getContent().stream().map(Customer::getName).collect(Collectors.toList()),
-            "suppliers", customerRepository.findByType("supplier", PageRequest.of(0, 100)).getContent().stream().map(Customer::getName).collect(Collectors.toList())
+            "projects", projectRepository.findAll().stream().map(p -> Map.of("label", p.getProjectName(), "value", p.getProjectNo())).collect(Collectors.toList()),
+            "customers", customerRepository.findByType("customer", PageRequest.of(0, 100)).getContent().stream().map(c -> Map.of("label", c.getName(), "value", c.getName())).collect(Collectors.toList()),
+            "suppliers", customerRepository.findByType("supplier", PageRequest.of(0, 100)).getContent().stream().map(c -> Map.of("label", c.getName(), "value", c.getName())).collect(Collectors.toList()),
+            "contracts", contractRepository.findAll().stream().map(c -> Map.of("label", c.getContractNo() + " - " + c.getContractName(), "value", c.getContractNo(), "name", c.getContractName())).collect(Collectors.toList())
         ));
     }
 }
