@@ -13,7 +13,7 @@
       </a-col>
       <a-col :span="8">
         <a-form-item label="发票类型" name="type">
-          <a-select v-model:value="form.type"><a-select-option value="专用发票">专用发票</a-select-option></a-select>
+          <SelectCreate v-model="form.type" :options="invoiceTypeOptions" placeholder="搜索或新建" @create="handleCreateType" />
         </a-form-item>
       </a-col>
       <a-col :span="8">
@@ -33,8 +33,8 @@
       <a-col :span="8"><a-form-item label="不含税额"><a-input :value="(form.amountWithoutTax||0).toFixed(2)" disabled /></a-form-item></a-col>
       <a-col :span="8"><a-form-item label="税额"><a-input :value="(form.taxAmount||0).toFixed(2)" disabled /></a-form-item></a-col>
       <a-col :span="8"><a-form-item label="开票日期" name="issueDate"><a-date-picker v-model:value="form.issueDate" style="width:100%" /></a-form-item></a-col>
-      <a-col :span="8"><a-form-item label="开票方" name="issuer"><a-input v-model:value="form.issuer" /></a-form-item></a-col>
-      <a-col :span="8"><a-form-item label="收票方" name="receiver"><a-input v-model:value="form.receiver" /></a-form-item></a-col>
+      <a-col :span="8"><a-form-item label="开票方" name="issuer"><SelectCreate v-model="form.issuer" :options="companyOptions" placeholder="搜索或新建" @create="(n:string)=>form.issuer=n" /></a-form-item></a-col>
+      <a-col :span="8"><a-form-item label="收票方" name="receiver"><SelectCreate v-model="form.receiver" :options="customerOptions" placeholder="搜索或新建" @create="(n:string)=>form.receiver=n" /></a-form-item></a-col>
       <a-col :span="24"><a-form-item label="备注" name="remark"><a-textarea v-model:value="form.remark" :rows="2" /></a-form-item></a-col>
     </a-row>
     <div style="text-align:right;margin-top:16px">
@@ -55,6 +55,9 @@ const props = defineProps<{ record?: any }>()
 const emit = defineEmits<{ (e: 'saved'): void, (e: 'cancel'): void }>()
 const saving = ref(false)
 const contractOptions = ref<any[]>([])
+const invoiceTypeOptions = ref<any[]>([])
+const companyOptions = ref<any[]>([])
+const customerOptions = ref<any[]>([])
 
 const form = reactive<any>({
   contractNo:'', contractName:'', invoiceNo:'', type:'专用发票',
@@ -82,17 +85,31 @@ function onContractChange(val: string) {
 
 onMounted(async () => {
   try {
-    const res = await authFetch('/api/options')
-    const d = await res.json()
-    if (d.code === 200) contractOptions.value = d.data.contracts || []
+    const [res1, res2, res3] = await Promise.all([
+      authFetch('/api/options'),
+      authFetch('/api/settings/dict?type=invoice_type'),
+      authFetch('/api/settings/companies')
+    ])
+    const d1 = await res1.json()
+    if (d1.code === 200) {
+      contractOptions.value = d1.data.contracts || []
+      customerOptions.value = (d1.data.customers || []).map((x:any) => ({ label: x.label || x, value: x.label || x }))
+    }
+    const d2 = await res2.json()
+    if (d2.code === 200) invoiceTypeOptions.value = (d2.data || []).map((x:any) => ({ label: x.label, value: x.label }))
+    const d3 = await res3.json()
+    if (d3.code === 200) companyOptions.value = (d3.data || []).map((x:any) => ({ label: x.companyName, value: x.companyName }))
   } catch {}
   if (props.record) { Object.assign(form, props.record); if (form.issueDate) form.issueDate = dayjs(form.issueDate) }
 })
 
-async function handleCreateContract() {
-  const name = prompt('请输入合同名称：')
-  if (!name || !name.trim()) return
-  const res = await authFetch('/api/contracts', { method:'POST', body:JSON.stringify({ contractName:name.trim(), direction:props.record?.direction || 'output' }) })
+async function handleCreateType(name: string) {
+  form.type = name
+  invoiceTypeOptions.value.push({ label: name, value: name })
+}
+
+async function handleCreateContract(name: string) {
+  const res = await authFetch('/api/contracts', { method:'POST', body:JSON.stringify({ contractName:name, direction:props.record?.direction || 'output' }) })
   const d = await res.json()
   if (d.code === 200) {
     const r2 = await authFetch('/api/options'); const d2 = await r2.json()

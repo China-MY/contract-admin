@@ -8,8 +8,6 @@
     filterOption
     @change="onChange"
     @search="onSearch"
-    @keydown.enter.prevent="onEnter"
-    ref="selectRef"
   />
 </template>
 
@@ -30,14 +28,28 @@ const emit = defineEmits<{
 const searchText = ref('')
 
 const mergedOptions = computed(() => {
-  if (!searchText.value) return props.options || []
-  const exists = (props.options || []).some(
-    (o: any) => (o.label || o.value || o).toLowerCase().includes(searchText.value.toLowerCase())
+  const opts = props.options || []
+  if (!searchText.value) return opts
+  // 检查搜索文本是否已存在于选项中（精确匹配或模糊匹配）
+  const exactMatch = opts.some(
+    (o: any) => {
+      const label = o.label || o.value || o
+      return String(label) === searchText.value
+    }
   )
-  if (!exists) {
-    return [...(props.options || []), { label: `➕ 创建「${searchText.value}」↲`, value: '__CREATE__', searchText: searchText.value }]
+  if (!exactMatch) {
+    return [...opts, { label: `➕ 创建「${searchText.value}」↲`, value: '__CREATE__' }]
   }
-  return props.options || []
+  // 有精确匹配时自动选中
+  const matched = opts.find((o: any) => {
+    const label = o.label || o.value || o
+    return String(label) === searchText.value
+  })
+  if (matched && props.modelValue !== searchText.value) {
+    const val = matched.value !== undefined ? matched.value : matched.label !== undefined ? matched.label : matched
+    setTimeout(() => { emit('update:modelValue', val); emit('change', val) }, 0)
+  }
+  return opts
 })
 
 function onSearch(val: string) {
@@ -46,32 +58,18 @@ function onSearch(val: string) {
 
 function onChange(val: string) {
   if (val === '__CREATE__') {
-    const name = searchText.value
+    const name = searchText.value || ''
     if (name && name.trim()) {
       emit('create', name.trim())
       emit('update:modelValue', name.trim())
       emit('change', name.trim())
     }
-    // Reset the select value to keep showing the typed text
-    searchText.value = name || ''
+    // 清空搜索文本让组件显示新值
+    searchText.value = ''
     return
   }
   emit('update:modelValue', val)
   emit('change', val)
   searchText.value = ''
-}
-
-function onEnter() {
-  const text = searchText.value
-  if (!text || !text.trim()) return
-  const exists = (props.options || []).some(
-    (o: any) => (o.label || o.value || o) === text
-  )
-  if (!exists) {
-    emit('create', text.trim())
-    emit('update:modelValue', text.trim())
-    emit('change', text.trim())
-    searchText.value = ''
-  }
 }
 </script>

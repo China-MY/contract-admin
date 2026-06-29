@@ -301,6 +301,10 @@ public class DataInitializer implements CommandLineRunner {
             }
         }
 
+        seedDict("invoice_type", new String[][]{
+            {"专用发票","1"},{"普通发票","2"},{"电子发票","3"},{"增值税发票","4"}
+        }, false, false);
+
         seedDict("payment_settings", new String[][]{
             {"启用收付款计划","1"},{"启用收付款确认","2"},{"启用项目功能","3"},{"启用合同地址","4"},{"启用利润统计","5"}
         }, false, false);

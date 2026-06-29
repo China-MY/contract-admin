@@ -30,7 +30,9 @@
           <a-col :span="12"><a-form-item label="项目状态"><a-select v-model:value="formModel.status"><a-select-option value="init">立项</a-select-option><a-select-option value="in_progress">进行中</a-select-option><a-select-option value="completed">已完成</a-select-option></a-select></a-form-item></a-col>
           <a-col :span="12"><a-form-item label="项目年度" name="year"><a-input v-model:value="formModel.year" placeholder="如 2026" /></a-form-item></a-col>
           <a-col :span="12"><a-form-item label="项目来源" name="source"><a-input v-model:value="formModel.source" /></a-form-item></a-col>
-          <a-col :span="12"><a-form-item label="客户名称" name="customerName"><a-input v-model:value="formModel.customerName" /></a-form-item></a-col>
+          <a-col :span="12"><a-form-item label="客户名称" name="customerName">
+            <SelectCreate v-model="formModel.customerName" :options="customerOpts" placeholder="搜索或新建" @create="(n:string)=>formModel.customerName=n" />
+          </a-form-item></a-col>
           <a-col :span="12"><a-form-item label="项目经理" name="manager"><a-input v-model:value="formModel.manager" /></a-form-item></a-col>
           <a-col :span="12"><a-form-item label="开始日期" name="startDate"><a-date-picker v-model:value="formModel.startDate" style="width:100%" /></a-form-item></a-col>
           <a-col :span="12"><a-form-item label="计划结束" name="endDate"><a-date-picker v-model:value="formModel.endDate" style="width:100%" /></a-form-item></a-col>
@@ -51,6 +53,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { authFetch } from '../../utils/auth'
 import dayjs from 'dayjs'
+import SelectCreate from '../../components/SelectCreate.vue'
 const sf = reactive({keyword:'',type:'',status:''})
 const dataList=ref<any[]>([]);const loading=ref(false);const types=ref(['研发项目','实施项目','维护项目','咨询项目','其他'])
 const pagination=reactive({current:1,pageSize:10,total:0,showSizeChanger:true,showTotal:(t:number)=>`共 ${t} 条`})
@@ -65,8 +68,11 @@ const columns=[
 ]
 const modalVisible=ref(false);const currentRecord=ref<any>(null);const modalTitle=ref('')
 const formModel=ref<any>({projectNo:'',projectName:'',projectType:'',status:'init',year:'',source:'',manager:'',customerName:'',startDate:null,endDate:null,budgetAmount:0,remark:''})
+const customerOpts=ref<any[]>([])
 
-onMounted(loadData)
+onMounted(()=>{loadData();loadCustomers()})
+
+async function loadCustomers(){try{const r=await authFetch('/api/options');const d=await r.json();if(d.code===200)customerOpts.value=(d.data.customers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))}catch{}}
 async function loadData(){loading.value=true;const p=new URLSearchParams({page:String(pagination.current),size:String(pagination.pageSize)})
   const res=await authFetch(`/api/projects?${p}`);const d=await res.json()
   if(d.code===200){dataList.value=d.data.records;pagination.total=d.data.total};loading.value=false}

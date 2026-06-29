@@ -4,7 +4,7 @@
       <template #title><span style="font-size:18px;font-weight:bold">销项发票</span></template>
       <a-form layout="inline" :model="searchForm" style="margin-bottom:16px">
         <a-form-item label="关键字"><a-input v-model:value="searchForm.keyword" placeholder="发票号码" allowClear /></a-form-item>
-        <a-form-item label="发票类型"><a-select v-model:value="searchForm.type" placeholder="请选择" allowClear style="width:130px"><a-select-option value="专用发票">专用发票</a-select-option></a-select></a-form-item>
+        <a-form-item label="发票类型"><a-select v-model:value="searchForm.type" placeholder="请选择" allowClear style="width:130px"><a-select-option v-for="t in invoiceTypes" :key="t" :value="t">{{t}}</a-select-option></a-select></a-form-item>
         <a-form-item label="开票日期"><a-date-picker v-model:value="searchForm.date" style="width:160px" /></a-form-item>
         <a-form-item><a-button type="primary" @click="loadData">查询</a-button><a-button style="margin-left:8px" @click="resetSearch">重置</a-button></a-form-item>
       </a-form>
@@ -30,9 +30,11 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
+import { authFetch } from '../../utils/auth'
 import InvoiceForm from './InvoiceForm.vue'
 
 const searchForm = reactive({ keyword: '', type: '', date: null })
+const invoiceTypes = ref<string[]>([])
 const dataList = ref<any[]>([]); const loading = ref(false); const totalAmount = ref(0)
 const modalVisible = ref(false); const currentRecord = ref<any>(null); const modalTitle = ref('')
 const pagination = reactive({ current:1, pageSize:10, total:0, showSizeChanger:true, showTotal:(t:number)=>`共 ${t} 条` })
@@ -49,7 +51,10 @@ const columns = [
   { title:'操作', key:'action', width:80, fixed:'right' as const },
 ]
 
-onMounted(loadData)
+onMounted(() => { loadData(); loadInvoiceTypes() })
+async function loadInvoiceTypes() {
+  try { const r = await authFetch('/api/settings/dict?type=invoice_type'); const d = await r.json(); if (d.code === 200) invoiceTypes.value = d.data.map((x: any) => x.label) } catch {}
+}
 async function loadData() {
   loading.value = true
   const params = new URLSearchParams({ page:String(pagination.current), size:String(pagination.pageSize), keyword: searchForm.keyword || '', type: searchForm.type || '' })
