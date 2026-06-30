@@ -15,6 +15,9 @@
         <a-menu-item key="/dashboard">
           <DashboardOutlined /><span>首页</span>
         </a-menu-item>
+        <a-menu-item key="/guide">
+          <QuestionCircleOutlined /><span>新手指南</span>
+        </a-menu-item>
         <a-menu-item key="/statistic">
           <BarChartOutlined /><span>统计</span>
         </a-menu-item>
@@ -99,6 +102,7 @@ import {
   DashboardOutlined, BarChartOutlined, ProjectOutlined,
   FileTextOutlined, FileProtectOutlined, MoneyCollectOutlined,
   TeamOutlined, ShopOutlined, BellOutlined, SettingOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons-vue'
 // Breadcrumb removed - not needed for now
 

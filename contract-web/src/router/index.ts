@@ -8,6 +8,7 @@ const routes: RouteRecordRaw[] = [
     redirect: '/dashboard',
     children: [
       { path: 'dashboard', name: 'Dashboard', component: () => import('../views/dashboard/Dashboard.vue'), meta: { title: '仪表盘' } },
+      { path: 'guide', name: 'Guide', component: () => import('../views/guide/Guide.vue'), meta: { title: '新手指南' } },
       // 统计
       { path: 'statistic', name: 'Statistics', component: () => import('../views/statistic/Statistics.vue'), meta: { title: '经营统计' } },
       // 合同
