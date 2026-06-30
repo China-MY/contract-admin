@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h1>合同管理系统</h1>
+        <h1>项目管理系统</h1>
         <p>企业合同全生命周期管理平台</p>
       </div>
       <a-form :model="form" @finish="handleLogin" layout="vertical">

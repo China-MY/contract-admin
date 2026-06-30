@@ -96,23 +96,14 @@ public class NotificationScheduler {
     }
 
     private boolean doSend(NotificationConfig cfg, String text) {
-        return switch (cfg.getChannelType()) {
-            case "feishu" -> sendWebhook(cfg.getWebhookUrl(),
-                    "{\"msg_type\":\"text\",\"content\":{\"text\":\"" + escapeJson(text) + "\"}}");
-            case "dingtalk" -> sendWebhook(cfg.getWebhookUrl(),
-                    "{\"msgtype\":\"text\",\"text\":{\"content\":\"" + escapeJson(text) + "\"}}");
-            case "email" -> true;
-            default -> false;
-        };
-    }
-
-    private String escapeJson(String s) {
-        return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
-    }
-
-    private boolean sendWebhook(String url, String json) {
         try {
-            var conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
+            String json = switch (cfg.getChannelType()) {
+                case "feishu" -> "{\"msg_type\":\"text\",\"content\":{\"text\":\"" + escapeJson(text) + "\"}}";
+                case "dingtalk" -> "{\"msgtype\":\"text\",\"text\":{\"content\":\"" + escapeJson(text) + "\"}}";
+                default -> null;
+            };
+            if (json == null) return false;
+            var conn = (java.net.HttpURLConnection) new java.net.URL(cfg.getWebhookUrl()).openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             conn.setDoOutput(true);
@@ -121,9 +112,19 @@ public class NotificationScheduler {
             try (var os = conn.getOutputStream()) {
                 os.write(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             }
-            return conn.getResponseCode() == 200;
+            int code = conn.getResponseCode();
+            if (code != 200) return false;
+            try (var is = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream(), java.nio.charset.StandardCharsets.UTF_8))) {
+                String resp = is.lines().collect(java.util.stream.Collectors.joining());
+                return resp.contains("\"errcode\":0") || resp.contains("\"code\":0") || !resp.contains("\"errcode\"");
+            }
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
     }
 }

@@ -2,7 +2,7 @@
   <a-layout style="min-height: 100vh">
     <a-layout-sider v-model:collapsed="collapsed" collapsible theme="dark" width="240">
       <div class="logo">
-        <span v-if="!collapsed" class="logo-text">合同管理系统</span>
+        <span v-if="!collapsed" class="logo-text">项目管理系统</span>
         <span v-else class="logo-text-short">HT</span>
       </div>
       <a-menu
