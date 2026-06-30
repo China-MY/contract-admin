@@ -55,7 +55,14 @@ async function loadOptions(){try{const r=await authFetch('/api/options');const d
   const r2=await authFetch('/api/settings/companies');const d2=await r2.json();if(d2.code===200)
   companyOptions.value=(d2.data||[]).map((c:any)=>({label:c.companyName,value:c.companyName}))
 }catch{}}
-function onContractChange(val:string){const found=contractOptions.value.find((c:any)=>c.value===val);if(found)form.contractName=found.name}
+function onContractChange(val:string){
+  const found=contractOptions.value.find((c:any)=>c.value===val)
+  if(found){
+    form.contractName=found.name
+    if(found.ourCompany) form.payer=found.ourCompany
+    if(found.counterparty) form.payee=found.counterparty
+  }
+}
 async function handleCreateContract(name:string){const res=await authFetch('/api/contracts',{method:'POST',body:JSON.stringify({contractName:name,direction:'pay'})});if(res.ok){const r2=await authFetch('/api/options');const d2=await r2.json();if(d2.code===200)contractOptions.value=d2.data.contracts||[];form.contractNo='';form.contractName=name}}
 const columns=[
   {title:'合同编号',dataIndex:'contractNo',width:120},{title:'合同名称',dataIndex:'contractName',width:180},

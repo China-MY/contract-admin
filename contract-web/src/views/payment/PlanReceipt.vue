@@ -70,7 +70,13 @@ async function loadOptions(){try{const r=await authFetch('/api/options');const d
 
 function onContractChange(val:string){
   const found=contractOptions.value.find((c:any)=>c.value===val)
-  if(found)form.contractName=found.name
+  if(found){
+    form.contractName=found.name
+    // 收款计划：付款方=对方单位，收款方=我方公司
+    if(found.counterparty) form.payer=found.counterparty
+    if(found.ourCompany) form.payee=found.ourCompany
+  }
+}
 }
 async function handleCreateContract(name:string){
   const res=await authFetch('/api/contracts',{method:'POST',body:JSON.stringify({contractName:name,direction:'receipt'})})

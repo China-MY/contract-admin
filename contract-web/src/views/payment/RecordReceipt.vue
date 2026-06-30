@@ -20,7 +20,7 @@
     <a-modal v-model:open="modalVisible" :title="modalTitle" width="65%" :footer="null" destroyOnClose>
       <a-form v-if="modalVisible" :model="form" layout="vertical" @finish="handleSave">
         <a-row :gutter="24">
-          <a-col :span="8"><a-form-item label="合同编号"><a-input v-model:value="form.contractNo" /></a-form-item></a-col>
+          <a-col :span="8"><a-form-item label="关联合同"><SelectCreate v-model="form.contractNo" :options="contractOptions" placeholder="搜索合同" @change="onContractChange" /></a-form-item></a-col>
           <a-col :span="8"><a-form-item label="合同名称"><a-input v-model:value="form.contractName" /></a-form-item></a-col>
           <a-col :span="8"><a-form-item label="发票号码"><a-input v-model:value="form.invoiceNo" /></a-form-item></a-col>
           <a-col :span="8"><a-form-item label="收款金额"><a-input-number v-model:value="form.amount" style="width:100%" :min="0" :precision="2" /></a-form-item></a-col>
@@ -52,6 +52,7 @@ async function loadOptions() {
   try {
     const r=await authFetch('/api/options');const d=await r.json()
     if(d.code===200){
+      contractOptions.value=d.data.contracts||[]
       const cust=(d.data.customers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
       const supp=(d.data.suppliers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
       const all=[...cust,...supp]
@@ -64,6 +65,16 @@ async function loadOptions() {
       }
     }
   }catch(e){}
+}
+const contractOptions=ref<any[]>([])
+function onContractChange(val:string){
+  const found=contractOptions.value.find((c:any)=>c.value===val)
+  if(found){
+    form.contractName=found.name
+    // 收款记录：付款方=对方单位，收款方=我方公司
+    if(found.counterparty) form.payer=found.counterparty
+    if(found.ourCompany) form.payee=found.ourCompany
+  }
 }
 
 const columns=[

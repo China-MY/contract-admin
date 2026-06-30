@@ -567,7 +567,14 @@ public class ContractController {
             "projects", projectRepository.findAll().stream().map(p -> Map.of("label", p.getProjectName(), "value", p.getProjectNo())).collect(Collectors.toList()),
             "customers", customerRepository.findByType("customer", PageRequest.of(0, 100)).getContent().stream().map(c -> Map.of("label", c.getName(), "value", c.getName())).collect(Collectors.toList()),
             "suppliers", customerRepository.findByType("supplier", PageRequest.of(0, 100)).getContent().stream().map(c -> Map.of("label", c.getName(), "value", c.getName())).collect(Collectors.toList()),
-            "contracts", contractRepository.findAll().stream().map(c -> Map.of("label", c.getContractNo() + " - " + c.getContractName(), "value", c.getContractNo(), "name", c.getContractName())).collect(Collectors.toList())
+            "contracts", contractRepository.findAll().stream().map(c -> Map.of(
+                "label", c.getContractNo() + " - " + c.getContractName(),
+                "value", c.getContractNo(),
+                "name", c.getContractName() != null ? c.getContractName() : "",
+                "ourCompany", c.getOurCompany() != null ? c.getOurCompany() : "",
+                "counterparty", c.getCounterparty() != null ? c.getCounterparty() : "",
+                "direction", c.getDirection() != null ? c.getDirection() : ""
+            )).collect(Collectors.toList())
         ));
     }
 }

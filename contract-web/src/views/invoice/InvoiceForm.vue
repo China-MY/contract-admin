@@ -80,7 +80,12 @@ function calcTax() {
 
 function onContractChange(val: string) {
   const found = contractOptions.value.find((c: any) => c.value === val)
-  if (found) form.contractName = found.name
+  if (found) {
+    form.contractName = found.name
+    // 自动填充开票方和收票方
+    if (found.ourCompany) form.issuer = found.ourCompany
+    if (found.counterparty) form.receiver = found.counterparty
+  }
 }
 
 onMounted(async () => {
