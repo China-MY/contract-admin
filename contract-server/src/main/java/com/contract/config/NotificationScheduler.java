@@ -14,13 +14,16 @@ public class NotificationScheduler {
     private final ProjectMilestoneRepository milestoneRepository;
     private final NotificationConfigRepository configRepository;
     private final NotificationLogRepository logRepository;
+    private final SystemConfigRepository systemConfigRepository;
 
     public NotificationScheduler(ProjectMilestoneRepository milestoneRepository,
                                   NotificationConfigRepository configRepository,
-                                  NotificationLogRepository logRepository) {
+                                  NotificationLogRepository logRepository,
+                                  SystemConfigRepository systemConfigRepository) {
         this.milestoneRepository = milestoneRepository;
         this.configRepository = configRepository;
         this.logRepository = logRepository;
+        this.systemConfigRepository = systemConfigRepository;
     }
 
     /** 每天 8:00 执行一次 */
@@ -29,26 +32,33 @@ public class NotificationScheduler {
         List<NotificationConfig> configs = configRepository.findByStatus("enabled");
         if (configs.isEmpty()) return;
 
+        // 读取提醒配置
+        int daysBefore = getConfigInt("remind_days_before", 3);
+        boolean enableBeforeStart = "enabled".equals(getConfig("enable_before_start", "enabled"));
+        boolean enableBeforeEnd = "enabled".equals(getConfig("enable_before_end", "enabled"));
+        boolean enableOnEnd = "enabled".equals(getConfig("enable_on_end", "enabled"));
+        boolean enableOverdue = "enabled".equals(getConfig("enable_overdue", "enabled"));
+
         List<ProjectMilestone> milestones = milestoneRepository.findByStatusNot("completed");
         LocalDate today = LocalDate.now();
 
         for (ProjectMilestone m : milestones) {
             String remindType = null;
 
-            // 计划开始前 3 天提醒
-            if (m.getPlannedStartDate() != null && m.getPlannedStartDate().minusDays(3).equals(today)) {
+            // 计划开始前 N 天提醒
+            if (enableBeforeStart && m.getPlannedStartDate() != null && m.getPlannedStartDate().minusDays(daysBefore).equals(today)) {
                 remindType = "before_start";
             }
-            // 计划结束前 3 天提醒
-            if (m.getPlannedEndDate() != null && m.getPlannedEndDate().minusDays(3).equals(today)) {
+            // 计划结束前 N 天提醒
+            if (enableBeforeEnd && m.getPlannedEndDate() != null && m.getPlannedEndDate().minusDays(daysBefore).equals(today)) {
                 remindType = "before_end";
             }
             // 计划结束当天提醒
-            if (m.getPlannedEndDate() != null && m.getPlannedEndDate().equals(today)) {
+            if (enableOnEnd && m.getPlannedEndDate() != null && m.getPlannedEndDate().equals(today)) {
                 remindType = "on_end";
             }
-            // 已超期提醒（计划结束已过且状态不是 completed）
-            if (m.getPlannedEndDate() != null && m.getPlannedEndDate().isBefore(today)
+            // 已超期提醒
+            if (enableOverdue && m.getPlannedEndDate() != null && m.getPlannedEndDate().isBefore(today)
                     && !"completed".equals(m.getStatus()) && !"delayed".equals(m.getStatus())) {
                 remindType = "overdue";
             }
@@ -70,6 +80,16 @@ public class NotificationScheduler {
                 } catch (Exception ignored) {}
             }
         }
+    }
+
+    private String getConfig(String key, String defaultValue) {
+        SystemConfig cfg = systemConfigRepository.findByConfigKey(key);
+        return cfg != null ? cfg.getConfigValue() : defaultValue;
+    }
+
+    private int getConfigInt(String key, int defaultValue) {
+        try { return Integer.parseInt(getConfig(key, String.valueOf(defaultValue))); }
+        catch (NumberFormatException e) { return defaultValue; }
     }
 
     private String buildNotifyText(ProjectMilestone m, String remindType) {

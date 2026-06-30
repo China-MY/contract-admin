@@ -60,6 +60,7 @@
           <a-menu-item key="/settings/dept">部门管理</a-menu-item>
           <a-menu-item key="/settings/post">岗位管理</a-menu-item>
           <a-menu-item key="/settings/notification">通知配置</a-menu-item>
+          <a-menu-item key="/settings/reminder-config">提醒配置</a-menu-item>
           <a-menu-item key="/settings/login-log">登录日志</a-menu-item>
           <a-menu-item key="/settings/operation-log">操作日志</a-menu-item>
         </a-sub-menu>

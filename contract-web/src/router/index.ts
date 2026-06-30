@@ -40,6 +40,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'settings/dept', name: 'SettingsDept', component: () => import('../views/settings/Dept.vue'), meta: { title: '部门管理' } },
       { path: 'settings/post', name: 'SettingsPost', component: () => import('../views/settings/Post.vue'), meta: { title: '岗位管理' } },
       { path: 'settings/notification', name: 'SettingsNotification', component: () => import('../views/settings/NotificationConfig.vue'), meta: { title: '通知配置' } },
+      { path: 'settings/reminder-config', name: 'SettingsReminderConfig', component: () => import('../views/settings/ReminderConfig.vue'), meta: { title: '提醒配置' } },
       { path: 'settings/login-log', name: 'SettingsLoginLog', component: () => import('../views/settings/LoginLog.vue'), meta: { title: '登录日志' } },
       { path: 'settings/operation-log', name: 'SettingsOperationLog', component: () => import('../views/settings/OperationLog.vue'), meta: { title: '操作日志' } },
     ]
