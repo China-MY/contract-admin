@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, nextTick } from 'vue'
+import { ref, reactive, onMounted, nextTick, watch } from 'vue'
 import { SyncOutlined } from '@ant-design/icons-vue'
 import { authFetch } from '../../utils/auth'
 import * as echarts from 'echarts'
@@ -75,6 +75,7 @@ const statCols = [{title:'指标',dataIndex:'indicator',width:120},{title:'金�
 
 // === 图表分析 ===
 const chartCards = ref<any[]>([])
+let chartData: any = null  // 缓存图表数据，Tab切换时重绘
 const trendRef=ref<HTMLElement>();const receivablePieRef=ref<HTMLElement>();const payablePieRef=ref<HTMLElement>()
 const incomeTrendRef=ref<HTMLElement>();const receiptPieRef=ref<HTMLElement>();const paymentPieRef=ref<HTMLElement>()
 const monthLabels = ['1月','2月','3月','4月','5月','6月']
@@ -153,8 +154,11 @@ async function loadOverview() {
 async function loadChart() {
   const res = await authFetch('/api/statistics/chart'); const d = await res.json()
   if (d.code === 200 && d.data) {
+    chartData = d.data
     if (d.data.summaryCards) chartCards.value = d.data.summaryCards
-    await nextTick(); renderCharts(d.data)
+    if (activeTab.value === 'chart') {
+      await nextTick(); renderCharts(d.data)
+    }
   }
 }
 
@@ -178,5 +182,20 @@ onMounted(() => {
   loadOverview()
   loadChart()
   loadProjects()
+})
+
+// 切换到图表 Tab 时重绘 ECharts
+watch(activeTab, async (tab) => {
+  if (tab === 'chart' && chartData) {
+    // 先销毁旧实例避免重复
+    [trendRef, receivablePieRef, payablePieRef, incomeTrendRef, receiptPieRef, paymentPieRef].forEach(ref => {
+      if (ref.value) {
+        const instance = echarts.getInstanceByDom(ref.value)
+        if (instance) instance.dispose()
+      }
+    })
+    await nextTick()
+    renderCharts(chartData)
+  }
 })
 </script>
