@@ -74,8 +74,24 @@ public class DashboardController {
         ));
         data.put("reminders", reminders);
         data.put("transactions", transactions);
-        data.put("trendMonths", List.of("1月","2月","3月","4月","5月","6月"));
-        data.put("trendValues", List.of(120000,280000,350000,420000,380000,450000));
+        // 年度合同趋势（按签订年份汇总应收合同金额）
+        var allContracts = contractRepository.findAll();
+        Map<Integer, Double> yearMap = new java.util.TreeMap<>();
+        for (var c : allContracts) {
+            if (c.getSignDate() != null && "receivable".equals(c.getDirection())) {
+                int year = c.getSignDate().getYear();
+                yearMap.merge(year, c.getContractAmount().doubleValue(), Double::sum);
+            }
+        }
+        List<String> dTrendMonths = new ArrayList<>();
+        List<Double> dTrendValues = new ArrayList<>();
+        int currentYear = java.time.LocalDate.now().getYear();
+        for (int y = currentYear - 5; y <= currentYear; y++) {
+            dTrendMonths.add(y + "年");
+            dTrendValues.add(yearMap.getOrDefault(y, 0.0));
+        }
+        data.put("trendMonths", dTrendMonths);
+        data.put("trendValues", dTrendValues);
         List<Map<String,Object>> dist = new ArrayList<>();
         dist.add(Map.of("name","未签订","value", (int)receivables.stream().filter(c->"unconfirmed".equals(c.getStatus())).count()));
         dist.add(Map.of("name","已签订","value", (int)receivables.stream().filter(c->"confirmed".equals(c.getStatus())).count()));
@@ -245,7 +261,25 @@ public class DashboardController {
             Map.of("label","应付合同总金额","value","¥"+fmt(totalP),"suffix","","color","#ff4d4f"),
             Map.of("label","付款比例","value",pct(totalPaid,totalP),"suffix","","color","#faad14")
         ));
-        result.put("trend", List.of(120000,280000,350000,420000,380000,450000));
+        // 年度合同趋势（按签订年份汇总应收合同金额）
+        var allContracts = contractRepository.findAll();
+        Map<Integer, Double> yearMap = new java.util.TreeMap<>();
+        for (var c : allContracts) {
+            if (c.getSignDate() != null && "receivable".equals(c.getDirection())) {
+                int year = c.getSignDate().getYear();
+                yearMap.merge(year, c.getContractAmount().doubleValue(), Double::sum);
+            }
+        }
+        List<String> trendLabels = new ArrayList<>();
+        List<Double> trendValues = new ArrayList<>();
+        // 取近6年
+        int currentYear = now.getYear();
+        for (int y = currentYear - 5; y <= currentYear; y++) {
+            trendLabels.add(y + "年");
+            trendValues.add(yearMap.getOrDefault(y, 0.0));
+        }
+        result.put("trendLabels", trendLabels);
+        result.put("trend", trendValues);
         result.put("monthlyIncome", monthlyIncome);
         result.put("monthlyExpense", monthlyExpense);
 
