@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { reactive } from 'vue'
 
 interface SearchField {
   key: string

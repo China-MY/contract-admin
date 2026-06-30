@@ -93,14 +93,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { message, Modal } from 'ant-design-vue'
 import { authFetch } from '../../utils/auth'
 import { CheckCircleOutlined, LoadingOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 
 const route = useRoute()
-const router = useRouter()
 const project = ref<any>(null)
 const stages = ref<any[]>([])
 const progress = reactive({ total: 0, completed: 0, inProgress: 0, percent: 0 })
