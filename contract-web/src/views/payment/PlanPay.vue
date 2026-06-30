@@ -25,8 +25,8 @@
           <a-col :span="8"><a-form-item label="计划金额" name="plannedAmount"><a-input-number v-model:value="form.plannedAmount" style="width:100%" :min="0" :precision="2" /></a-form-item></a-col>
           <a-col :span="8"><a-form-item label="计划日期" name="plannedDate"><a-date-picker v-model:value="form.plannedDate" style="width:100%" /></a-form-item></a-col>
           <a-col :span="8"><a-form-item label="状态" name="status"><a-select v-model:value="form.status"><a-select-option value="unpaid">未付</a-select-option><a-select-option value="partial">部分</a-select-option><a-select-option value="paid">已付</a-select-option></a-select></a-form-item></a-col>
-          <a-col :span="12"><a-form-item label="付款方" name="payer"><SelectCreate v-model="form.payer" :options="companyOptions" placeholder="选择我方公司" @create="(n:string)=>form.payer=n" /></a-form-item></a-col>
-          <a-col :span="12"><a-form-item label="收款方" name="payee"><SelectCreate v-model="form.payee" :options="partyOptions" placeholder="搜索或新建" @create="(n:string)=>form.payee=n" /></a-form-item></a-col>
+          <a-col :span="12"><a-form-item label="付款方" name="payer"><SelectCreate v-model="form.payer" :options="allPartyOptions" placeholder="搜索或选择" @create="(n:string)=>form.payer=n" /></a-form-item></a-col>
+          <a-col :span="12"><a-form-item label="收款方" name="payee"><SelectCreate v-model="form.payee" :options="allPartyOptions" placeholder="搜索或选择" @create="(n:string)=>form.payee=n" /></a-form-item></a-col>
           <a-col :span="24"><a-form-item label="备注" name="remark"><a-textarea v-model:value="form.remark" :rows="2" /></a-form-item></a-col>
         </a-row>
         <div style="text-align:right;margin-top:16px"><a-button @click="modalVisible=false">取消</a-button><a-button type="primary" html-type="submit" style="margin-left:8px" :loading="saving">保存</a-button></div>
@@ -46,15 +46,25 @@ const pagination=reactive({current:1,pageSize:10,total:0,showSizeChanger:true,sh
 const modalVisible=ref(false);const modalTitle=ref('');const currentId=ref<number|null>(null);const saving=ref(false)
 const form=reactive<any>({contractNo:'',contractName:'',plannedAmount:0,plannedDate:null,status:'unpaid',payer:'',payee:'',remark:''})
 const contractOptions=ref<any[]>([])
-const partyOptions=ref<any[]>([])
-const companyOptions=ref<any[]>([])
-async function loadOptions(){try{const r=await authFetch('/api/options');const d=await r.json();if(d.code===200){
-  const cust=(d.data.customers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
-  const supp=(d.data.suppliers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
-  partyOptions.value=[...cust,...supp]}
-  const r2=await authFetch('/api/settings/companies');const d2=await r2.json();if(d2.code===200)
-  companyOptions.value=(d2.data||[]).map((c:any)=>({label:c.companyName,value:c.companyName}))
-}catch{}}
+const allPartyOptions=ref<any[]>([])
+async function loadOptions() {
+  try {
+    const r=await authFetch('/api/options');const d=await r.json()
+    if(d.code===200) {
+      contractOptions.value=d.data.contracts||[]
+      const cust=(d.data.customers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
+      const supp=(d.data.suppliers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))
+      const all=[...cust,...supp]
+      const r2=await authFetch('/api/settings/companies');const d2=await r2.json()
+      if(d2.code===200) {
+        const comp=(d2.data||[]).map((c:any)=>({label:c.companyName,value:c.companyName}))
+        allPartyOptions.value=[...all,...comp]
+      } else {
+        allPartyOptions.value=all
+      }
+    }
+  } catch(e) {}
+}
 function onContractChange(val:string){
   const found=contractOptions.value.find((c:any)=>c.value===val)
   if(found){
