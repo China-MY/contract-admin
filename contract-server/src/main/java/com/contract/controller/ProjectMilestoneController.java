@@ -154,19 +154,28 @@ public class ProjectMilestoneController {
         int sent = 0;
 
         for (NotificationConfig cfg : configs) {
+            String text = buildNotifyText(m, cfg.getChannelType());
             try {
-                String text = buildNotifyText(m, cfg.getChannelType());
                 boolean ok = doSend(cfg, text);
                 NotificationLog log = new NotificationLog();
                 log.setMilestoneId(milestoneId);
                 log.setChannelType(cfg.getChannelType());
                 log.setRemindType("manual");
                 log.setStatus(ok ? "success" : "fail");
-                log.setMessage(ok ? "发送成功" : "发送失败: " + text);
+                log.setMessage(ok ? "发送成功" : "发送失败，请检查Webhook地址和配置");
                 log.setSentAt(java.time.LocalDateTime.now());
                 logRepository.save(log);
                 if (ok) sent++;
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                NotificationLog log = new NotificationLog();
+                log.setMilestoneId(milestoneId);
+                log.setChannelType(cfg.getChannelType());
+                log.setRemindType("manual");
+                log.setStatus("fail");
+                log.setMessage("发送异常: " + e.getMessage());
+                log.setSentAt(java.time.LocalDateTime.now());
+                logRepository.save(log);
+            }
         }
         return Result.ok("已发送 " + sent + " 条通知");
     }
@@ -199,42 +208,46 @@ public class ProjectMilestoneController {
 
     private boolean doSend(NotificationConfig cfg, String text) {
         return switch (cfg.getChannelType()) {
-            case "feishu" -> sendFeishu(cfg.getWebhookUrl(), text);
-            case "dingtalk" -> sendDingTalk(cfg.getWebhookUrl(), text);
+            case "feishu" -> sendWebhook(cfg.getWebhookUrl(),
+                    "{\"msg_type\":\"text\",\"content\":{\"text\":\"" + escapeJson(text) + "\"}}");
+            case "dingtalk" -> sendWebhook(cfg.getWebhookUrl(),
+                    "{\"msgtype\":\"text\",\"text\":{\"content\":\"" + escapeJson(text) + "\"}}");
             case "email" -> true; // Email requires SMTP config, skip for now
             default -> false;
         };
     }
 
-    private boolean sendFeishu(String url, String text) {
-        try {
-            var json = "{\"msg_type\":\"text\",\"content\":{\"text\":" + org.springframework.web.util.UriUtils.encode(text, java.nio.charset.StandardCharsets.UTF_8) + "}}";
-            var conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
-            try (var os = conn.getOutputStream()) {
-                os.write(json.getBytes());
-            }
-            return conn.getResponseCode() == 200;
-        } catch (Exception e) {
-            return false;
-        }
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 
-    private boolean sendDingTalk(String url, String text) {
+    private boolean sendWebhook(String url, String json) {
         try {
-            // Escape for JSON string
-            String escaped = text.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
-            String json = "{\"msgtype\":\"text\",\"text\":{\"content\":\"" + escaped + "\"}}";
             var conn = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             conn.setDoOutput(true);
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
             try (var os = conn.getOutputStream()) {
                 os.write(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             }
-            return conn.getResponseCode() == 200;
+            int code = conn.getResponseCode();
+            // Read response body for DingTalk errcode check
+            if (code == 200) {
+                try (var is = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream(), java.nio.charset.StandardCharsets.UTF_8))) {
+                    String resp = is.lines().collect(java.util.stream.Collectors.joining());
+                    // DingTalk returns {"errcode":0,"errmsg":"ok"} for success
+                    if (resp.contains("\"errcode\":0") || resp.contains("\"errcode\":0,")) return true;
+                    return !resp.contains("\"errcode\"");
+                }
+            }
+            return false;
         } catch (Exception e) {
             return false;
         }
