@@ -15,8 +15,8 @@ public class SystemConfig {
     @Column(length = 100, unique = true)
     private String configKey;
 
-    @Column(length = 10)
-    private String configValue; // enabled / disabled
+    @Column(length = 500)
+    private String configValue;
 
     @Column(length = 500)
     private String description;
