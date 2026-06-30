@@ -20,11 +20,6 @@
         <!-- Tab 2: 图表分析 -->
         <a-tab-pane key="chart" tab="图表分析">
           <a-button style="margin-bottom:16px" @click="refreshAll"><SyncOutlined /> 刷新数据</a-button>
-          <a-row :gutter="16">
-            <a-col :span="6" v-for="s in chartCards" :key="s.label">
-              <a-card size="small"><a-statistic :title="s.label" :value="s.value" :suffix="s.suffix" :value-style="{fontSize:'18px',color:s.color}" /></a-card>
-            </a-col>
-          </a-row>
           <a-row :gutter="16" style="margin-top:16px">
             <a-col :span="12"><a-card title="年度合同趋势"><div ref="trendRef" style="height:280px"></div></a-card></a-col>
             <a-col :span="6"><a-card title="应收合同类型分布"><div ref="receivablePieRef" style="height:280px"></div></a-card></a-col>
@@ -74,7 +69,6 @@ const payableStats = ref<any[]>([])
 const statCols = [{title:'指标',dataIndex:'indicator',width:120},{title:'金额',dataIndex:'amount',width:160},{title:'比例',dataIndex:'rate',width:80}]
 
 // === 图表分析 ===
-const chartCards = ref<any[]>([])
 let chartData: any = null  // 缓存图表数据，Tab切换时重绘
 const trendRef=ref<HTMLElement>();const receivablePieRef=ref<HTMLElement>();const payablePieRef=ref<HTMLElement>()
 const incomeTrendRef=ref<HTMLElement>();const receiptPieRef=ref<HTMLElement>();const paymentPieRef=ref<HTMLElement>()
@@ -155,7 +149,6 @@ async function loadChart() {
   const res = await authFetch('/api/statistics/chart'); const d = await res.json()
   if (d.code === 200 && d.data) {
     chartData = d.data
-    if (d.data.summaryCards) chartCards.value = d.data.summaryCards
     if (activeTab.value === 'chart') {
       await nextTick(); renderCharts(d.data)
     }
