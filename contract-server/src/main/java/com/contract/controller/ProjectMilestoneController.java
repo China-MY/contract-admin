@@ -109,6 +109,21 @@ public class ProjectMilestoneController {
         return Result.ok(logRepository.findAll());
     }
 
+    // === 进度统计 ===
+    @GetMapping("/progress")
+    public Result<?> getProgress(@RequestParam String projectNo) {
+        List<ProjectMilestone> list = milestoneRepository.findByProjectNoOrderByStageOrder(projectNo);
+        int total = list.size();
+        long completed = list.stream().filter(m -> "completed".equals(m.getStatus())).count();
+        long inProgress = list.stream().filter(m -> "in_progress".equals(m.getStatus())).count();
+        double percent = total > 0 ? (double) completed / total * 100 : 0;
+        return Result.ok(Map.of(
+            "total", total, "completed", completed, "inProgress", inProgress,
+            "percent", Math.round(percent * 100.0) / 100.0,
+            "stages", list
+        ));
+    }
+
     // === 手动触发发送 ===
     @PostMapping("/send-notify")
     public Result<?> sendNotify(@RequestBody Map<String, Object> body) {

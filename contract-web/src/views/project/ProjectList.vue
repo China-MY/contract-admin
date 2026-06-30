@@ -16,7 +16,10 @@
       <template #bodyCell="{column,record}">
         <template v-if="column.key==='status'"><a-tag :color="record.status==='completed'?'green':record.status==='in_progress'?'blue':'orange'">{{record.status==='completed'?'已完成':record.status==='in_progress'?'进行中':'立项'}}</a-tag></template>
         <template v-else-if="column.key==='budgetAmount'">¥{{(record.budgetAmount||0).toLocaleString()}}</template>
-        <template v-else-if="column.key==='action'"><a-button type="link" size="small" @click="edit(record)">编辑</a-button></template>
+        <template v-else-if="column.key==='action'">
+          <a-button type="link" size="small" @click="edit(record)">编辑</a-button>
+          <a-button type="link" size="small" @click="router.push('/project/detail/'+record.id)">详情</a-button>
+        </template>
       </template>
     </a-table>
 
@@ -50,10 +53,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { authFetch } from '../../utils/auth'
 import dayjs from 'dayjs'
 import SelectCreate from '../../components/SelectCreate.vue'
+const router = useRouter()
 const sf = reactive({keyword:'',type:'',status:''})
 const dataList=ref<any[]>([]);const loading=ref(false);const types=ref(['研发项目','实施项目','维护项目','咨询项目','其他'])
 const pagination=reactive({current:1,pageSize:10,total:0,showSizeChanger:true,showTotal:(t:number)=>`共 ${t} 条`})
