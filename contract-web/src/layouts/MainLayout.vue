@@ -21,9 +21,11 @@
           <a-menu-item key="/statistic/chart">图表分析</a-menu-item>
           <a-menu-item key="/statistic/project">项目统计</a-menu-item>
         </a-sub-menu>
-        <a-menu-item key="/project/list">
-          <ProjectOutlined /><span>项目</span>
-        </a-menu-item>
+        <a-sub-menu key="project">
+          <template #title><ProjectOutlined /><span>项目</span></template>
+          <a-menu-item key="/project/list">项目列表</a-menu-item>
+          <a-menu-item key="/project/progress">项目进度</a-menu-item>
+        </a-sub-menu>
         <a-sub-menu key="contract">
           <template #title><FileTextOutlined /><span>合同</span></template>
           <a-menu-item key="/contract/receivable">应收合同</a-menu-item>

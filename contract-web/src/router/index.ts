@@ -25,6 +25,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'payment/record/pay', name: 'PaymentRecordPay', component: () => import('../views/payment/RecordPay.vue'), meta: { title: '付款记录' } },
       // 项目
       { path: 'project/list', name: 'ProjectList', component: () => import('../views/project/ProjectList.vue'), meta: { title: '项目列表' } },
+      { path: 'project/progress', name: 'ProjectProgress', component: () => import('../views/project/ProjectProgress.vue'), meta: { title: '项目进度' } },
       // 客户/供应商
       { path: 'customer/list', name: 'CustomerList', component: () => import('../views/customer/CustomerList.vue'), meta: { title: '客户' } },
       { path: 'supplier/list', name: 'SupplierList', component: () => import('../views/supplier/SupplierList.vue'), meta: { title: '供应商' } },
