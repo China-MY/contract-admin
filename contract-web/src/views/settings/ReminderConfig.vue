@@ -15,8 +15,11 @@
         <a-checkbox v-model:checked="form.enable_overdue" style="margin-left:16px;margin-top:8px">阶段超期提醒</a-checkbox>
       </a-form-item>
       <a-divider>发送设置</a-divider>
-      <a-form-item label="提醒时间">
-        <span>每天 8:00 自动执行（固定时间）</span>
+      <a-form-item label="每日执行时间">
+        <a-select v-model:value="form.remind_hour" style="width:120px">
+          <a-select-option v-for="h in 24" :key="h-1" :value="h-1">{{ String(h-1).padStart(2,'0') }}:00</a-select-option>
+        </a-select>
+        <span style="margin-left:8px;color:#666">每天这个小时自动检查并发送提醒</span>
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit" :loading="saving">保存设置</a-button>
@@ -37,6 +40,7 @@ const form = reactive({
   enable_before_end: true,
   enable_on_end: true,
   enable_overdue: true,
+  remind_hour: 8,
 })
 
 onMounted(loadConfig)
@@ -55,6 +59,7 @@ async function loadConfig() {
       if (map.enable_before_end) form.enable_before_end = map.enable_before_end === 'enabled'
       if (map.enable_on_end) form.enable_on_end = map.enable_on_end === 'enabled'
       if (map.enable_overdue) form.enable_overdue = map.enable_overdue === 'enabled'
+      if (map.remind_hour) form.remind_hour = parseInt(map.remind_hour) || 8
     }
   } catch {}
 }
@@ -67,6 +72,7 @@ async function handleSave() {
     { configKey: 'enable_before_end', configValue: form.enable_before_end ? 'enabled' : 'disabled', description: '阶段到期前提醒' },
     { configKey: 'enable_on_end', configValue: form.enable_on_end ? 'enabled' : 'disabled', description: '阶段到期日提醒' },
     { configKey: 'enable_overdue', configValue: form.enable_overdue ? 'enabled' : 'disabled', description: '阶段超期提醒' },
+    { configKey: 'remind_hour', configValue: String(form.remind_hour), description: '每日执行小时' },
   ]
   try {
     const res = await authFetch('/api/settings/config', { method: 'PUT', body: JSON.stringify(configs) })

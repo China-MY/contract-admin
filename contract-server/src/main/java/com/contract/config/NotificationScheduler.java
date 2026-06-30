@@ -26,9 +26,13 @@ public class NotificationScheduler {
         this.systemConfigRepository = systemConfigRepository;
     }
 
-    /** 每天 8:00 执行一次 */
-    @Scheduled(cron = "0 0 8 * * ?")
+    /** 每小时执行一次，匹配配置的小时数才发送 */
+    @Scheduled(fixedRate = 3600000)
     public void checkMilestones() {
+        int remindHour = getConfigInt("remind_hour", 8);
+        int currentHour = java.time.LocalTime.now().getHour();
+        if (currentHour != remindHour) return;
+
         List<NotificationConfig> configs = configRepository.findByStatus("enabled");
         if (configs.isEmpty()) return;
 
