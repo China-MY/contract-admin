@@ -15,12 +15,9 @@
         <a-menu-item key="/dashboard">
           <DashboardOutlined /><span>首页</span>
         </a-menu-item>
-        <a-sub-menu key="statistic">
-          <template #title><BarChartOutlined /><span>统计</span></template>
-          <a-menu-item key="/statistic/overview">经营明细</a-menu-item>
-          <a-menu-item key="/statistic/chart">图表分析</a-menu-item>
-          <a-menu-item key="/statistic/project">项目统计</a-menu-item>
-        </a-sub-menu>
+        <a-menu-item key="/statistic">
+          <BarChartOutlined /><span>统计</span>
+        </a-menu-item>
         <a-menu-item key="/project/list">
           <ProjectOutlined /><span>项目</span>
         </a-menu-item>

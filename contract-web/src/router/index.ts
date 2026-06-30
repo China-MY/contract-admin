@@ -9,9 +9,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: 'dashboard', name: 'Dashboard', component: () => import('../views/dashboard/Dashboard.vue'), meta: { title: '仪表盘' } },
       // 统计
-      { path: 'statistic/overview', name: 'StatisticOverview', component: () => import('../views/statistic/Overview.vue'), meta: { title: '经营明细' } },
-      { path: 'statistic/chart', name: 'StatisticChart', component: () => import('../views/statistic/Chart.vue'), meta: { title: '图表分析' } },
-      { path: 'statistic/project', name: 'StatisticProject', component: () => import('../views/statistic/ProjectStat.vue'), meta: { title: '项目统计' } },
+      { path: 'statistic', name: 'Statistics', component: () => import('../views/statistic/Statistics.vue'), meta: { title: '经营统计' } },
       // 合同
       { path: 'contract/receivable', name: 'ContractReceivable', component: () => import('../views/contract/Receivable.vue'), meta: { title: '应收合同' } },
       { path: 'contract/payable', name: 'ContractPayable', component: () => import('../views/contract/Payable.vue'), meta: { title: '应付合同' } },
