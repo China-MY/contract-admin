@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/contract_db?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+app:
+  jwt:
+    secret: Y29udHJhY3Qtc2VydmVyLWp3dC1zZWNyZXQta2V5LTIwMjYtcHJvZHVjdGlvbi1jb250cmFjdC1tYW5hZ2VtZW50
+    expiration-ms: 86400000
+
+logging:
+  level:
+    com.contract: debug

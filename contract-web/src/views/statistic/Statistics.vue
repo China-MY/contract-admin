@@ -73,7 +73,6 @@ let chartData: any = null  // 缓存图表数据，Tab切换时重绘
 const trendRef=ref<HTMLElement>();const receivablePieRef=ref<HTMLElement>();const payablePieRef=ref<HTMLElement>()
 const incomeTrendRef=ref<HTMLElement>();const receiptPieRef=ref<HTMLElement>();const paymentPieRef=ref<HTMLElement>()
 const monthLabels = ['1月','2月','3月','4月','5月','6月']
-const yearLabels = ['2021','2022','2023','2024','2025','2026']
 
 // === 项目统计 ===
 const projectList=ref<any[]>([]);const projectLoading=ref(false)
@@ -97,9 +96,9 @@ function renderCharts(data: any) {
     if (trendRef.value && trendRef.value.offsetHeight > 0) {
       echarts.init(trendRef.value).setOption({
         tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', data: data.trendLabels || yearLabels },
+        xAxis: { type: 'category', data: data.trendLabels || [] },
         yAxis: { type: 'value', axisLabel: { formatter: '¥{value}' } },
-        series: [{ data: data.trend || [0,0,0,0,0,0], type: 'line', smooth: true, areaStyle: { opacity: 0.3 }, lineStyle: { width: 3 }, itemStyle: { color: '#1890ff' } }]
+        series: [{ data: data.trend || [], type: 'line', smooth: true, areaStyle: { opacity: 0.3 }, lineStyle: { width: 3 }, itemStyle: { color: '#1890ff' } }]
       })
     }
     if (receivablePieRef.value && receivablePieRef.value.offsetHeight > 0) {

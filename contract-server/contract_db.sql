@@ -1,17 +1,17 @@
 /*
  Navicat Premium Dump SQL
 
- Source Server         : localhost_3306
+ Source Server         : 公司内网
  Source Server Type    : MySQL
- Source Server Version : 80012 (8.0.12)
- Source Host           : localhost:3306
+ Source Server Version : 80410 (8.4.10)
+ Source Host           : 10.10.32.210:3306
  Source Schema         : contract_db
 
  Target Server Type    : MySQL
- Target Server Version : 80012 (8.0.12)
+ Target Server Version : 80410 (8.4.10)
  File Encoding         : 65001
 
- Date: 30/06/2026 13:48:04
+ Date: 30/06/2026 15:29:18
 */
 
 SET NAMES utf8mb4;
@@ -22,7 +22,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `contracts`;
 CREATE TABLE `contracts`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `attachment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `contract_address` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `contract_amount` decimal(18, 2) NULL DEFAULT NULL,
@@ -69,26 +69,18 @@ CREATE TABLE `contracts`  (
   `unreceived_invoice_amount` decimal(18, 2) NULL DEFAULT NULL,
   `updated_at` datetime(6) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of contracts
 -- ----------------------------
-INSERT INTO `contracts` VALUES (3, NULL, NULL, 80000.00, '智慧校园平台开发合同', 'HT20260501', '销售合同', '南京科技公司', '2026-06-29 13:05:39.859980', 'receivable', '2027-04-29', 34.48, 200000.00, 80000.00, NULL, '筱凡网络科技', 0.00, 0.00, 0.00, 0.00, NULL, 'fixed', 0.00, 0.00, 0.00, 0.00, 87000.00, 0.00, '苏州爱华MES项目', 'NM260101', 20.68, 'partial', 120000.00, 0.00, 0.00, 0.00, 0.00, NULL, 580000.00, '2026-04-29', 'confirmed', 380000.00, 0.00, 460000.00, 0.00, '2026-06-29 13:46:27.576406');
-INSERT INTO `contracts` VALUES (4, NULL, NULL, 1200000.00, '白炭黑生产系统', 'HT20260502', '销售合同', '中铁建二十局', '2026-06-29 13:05:39.889051', 'receivable', '2027-02-28', 43.48, 500000.00, 200000.00, NULL, '成者为译', 0.00, 0.00, 0.00, 0.00, NULL, 'fixed', 0.00, 0.00, 0.00, 0.00, 180000.00, 0.00, '白炭黑绿化工程', 'LY-BTH-01', 26.09, 'partial', 300000.00, 0.00, 0.00, 0.00, 0.00, NULL, 1150000.00, '2026-05-29', 'confirmed', 650000.00, 0.00, 850000.00, 0.00, '2026-06-29 13:05:39.889051');
-INSERT INTO `contracts` VALUES (5, NULL, NULL, 96000.00, 'MES系统运维服务', 'HT20260503', '服务合同', '福州赢雅科技', '2026-06-29 13:05:39.999867', 'receivable', '2027-06-29', 33.33, 32000.00, 0.00, NULL, '筱凡网络科技', 0.00, 0.00, 0.00, 0.00, NULL, 'fixed', 0.00, 0.00, 0.00, 0.00, 14400.00, 0.00, '苏州爱华MES项目', 'NM260101', 33.33, 'partial', 32000.00, 0.00, 0.00, 0.00, 0.00, NULL, 96000.00, '2026-05-29', 'confirmed', 64000.00, 0.00, 64000.00, 0.00, '2026-06-29 13:05:39.999867');
-INSERT INTO `contracts` VALUES (6, NULL, NULL, 154995000.00, '校园网络改造', 'HT20260504', '销售合同', '南京科技公司', '2026-06-29 13:05:40.045504', 'receivable', NULL, 0.00, 0.00, 0.00, NULL, '成者为译', 0.00, 0.00, 0.00, 0.00, NULL, 'fixed', 0.00, 0.00, 0.00, 0.00, 6750.00, 0.00, '白炭黑绿化工程', 'LY-BTH-01', 0.00, '未收款', 0.00, 0.00, 0.00, 0.00, 0.00, NULL, 450900.00, NULL, 'unconfirmed', 45000.00, 0.00, 45000.00, 0.00, '2026-06-29 13:45:29.993804');
-INSERT INTO `contracts` VALUES (7, NULL, NULL, 24000.00, '设备维护合同', 'HT20260505', '服务合同', '南京科技公司', '2026-06-29 13:05:40.174496', 'receivable', '2026-05-29', 100.00, 24000.00, 0.00, NULL, '筱凡网络科技', 0.00, 0.00, 0.00, 0.00, NULL, 'fixed', 0.00, 0.00, 0.00, 0.00, 3600.00, 0.00, '', '', 100.00, '已完成', 24000.00, 0.00, 0.00, 0.00, 0.00, NULL, 24000.00, '2025-12-29', 'archived', 0.00, 0.00, 0.00, 0.00, '2026-06-29 13:05:40.174496');
-INSERT INTO `contracts` VALUES (8, NULL, NULL, 180000.00, '服务器采购', 'CG20260501', '采购合同', '联想集团', '2026-06-29 13:05:40.308358', 'payable', '2026-12-29', 0.00, 0.00, 0.00, NULL, '筱凡网络科技', 90000.00, 0.00, 0.00, 50.00, 'partial', 'fixed', 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '苏州爱华MES项目', 'NM260101', 0.00, NULL, 0.00, 90000.00, 0.00, 50.00, 0.00, NULL, 180000.00, '2026-05-29', 'confirmed', 0.00, 90000.00, 0.00, 90000.00, '2026-06-29 13:05:40.308358');
-INSERT INTO `contracts` VALUES (9, NULL, NULL, 350000.00, '网络设备采购', 'CG20260502', '采购合同', '联通福建分公司', '2026-06-29 13:05:40.355994', 'payable', '2026-10-29', 0.00, 0.00, 0.00, NULL, '成者为译', 100000.00, 100000.00, 0.00, 29.41, 'partial', 'fixed', 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '白炭黑绿化工程', 'LY-BTH-01', 0.00, NULL, 0.00, 0.00, 0.00, 0.00, 0.00, NULL, 340000.00, '2026-04-29', 'confirmed', 0.00, 250000.00, 0.00, 340000.00, '2026-06-29 13:05:40.355994');
-INSERT INTO `contracts` VALUES (10, NULL, NULL, 52022000.00, '软件授权费', 'CG20260503', '采购合同', '南京科技公司', '2026-06-29 13:05:40.402793', 'payable', '2027-06-29', 0.00, 0.00, 0.00, NULL, '筱凡网络科技', 0.00, 0.00, 0.00, 0.00, '未付款', 'fixed', 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, '', '', 0.00, NULL, 0.00, 0.00, 0.00, 0.00, 0.00, NULL, 50000.00, '2026-06-29', 'confirmed', 0.00, 50000.00, 0.00, 50000.00, '2026-06-29 13:47:53.931432');
 
 -- ----------------------------
 -- Table structure for customers
 -- ----------------------------
 DROP TABLE IF EXISTS `customers`;
 CREATE TABLE `customers`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `address` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `contact_person` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `created_at` datetime(6) NULL DEFAULT NULL,
@@ -102,23 +94,18 @@ CREATE TABLE `customers`  (
   `bank_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `tax_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of customers
 -- ----------------------------
-INSERT INTO `customers` VALUES (2, NULL, NULL, '2026-06-29 13:05:39.593911', NULL, '南京科技公司', '13800006777', NULL, 'customer', '2026-06-29 13:05:39.593911', NULL, NULL, NULL);
-INSERT INTO `customers` VALUES (3, NULL, NULL, '2026-06-29 13:05:39.730970', NULL, '中铁建二十局', '13800007859', NULL, 'customer', '2026-06-29 13:05:39.730970', NULL, NULL, NULL);
-INSERT INTO `customers` VALUES (4, NULL, NULL, '2026-06-29 13:05:39.752090', NULL, '福州赢雅科技', '13800004158', NULL, 'customer', '2026-06-29 13:05:39.752090', NULL, NULL, NULL);
-INSERT INTO `customers` VALUES (5, NULL, NULL, '2026-06-29 13:05:39.763632', NULL, '联想集团', '13800004744', NULL, 'supplier', '2026-06-29 13:05:39.763632', NULL, NULL, NULL);
-INSERT INTO `customers` VALUES (6, NULL, NULL, '2026-06-29 13:05:39.777155', NULL, '联通福建分公司', '13800007606', NULL, 'supplier', '2026-06-29 13:05:39.777155', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for invoices
 -- ----------------------------
 DROP TABLE IF EXISTS `invoices`;
 CREATE TABLE `invoices`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `amount_with_tax` decimal(18, 2) NULL DEFAULT NULL,
   `amount_without_tax` decimal(18, 2) NULL DEFAULT NULL,
   `attachment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -139,23 +126,18 @@ CREATE TABLE `invoices`  (
   `updated_at` datetime(6) NULL DEFAULT NULL,
   `voucher_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of invoices
 -- ----------------------------
-INSERT INTO `invoices` VALUES (1, 212000.00, 187610.62, NULL, '智慧校园平台开发合同', 'HT20260501', '2026-06-29 13:05:40.454450', 'output', 'INV2026001', '2026-05-30', '筱凡网络科技', NULL, '南京科技公司', NULL, '1', 24389.38, 0.13, '专用发票', '2026-06-29 17:08:44.161337', '-');
-INSERT INTO `invoices` VALUES (2, 500000.00, 442477.88, NULL, '白炭黑生产系统', 'HT20260502', '2026-06-29 13:05:40.497573', 'output', 'INV2026002', '2026-06-14', '成者为译', NULL, '中铁建二十局', NULL, NULL, 57522.12, 0.13, '专用发票', '2026-06-29 13:05:40.497573', '-');
-INSERT INTO `invoices` VALUES (3, 32000.00, 31683.17, NULL, 'MES系统运维服务', 'HT20260503', '2026-06-29 13:05:40.538209', 'output', 'INV2026003', '2026-06-24', '筱凡网络科技', NULL, '福州赢雅科技', NULL, NULL, 316.83, 0.01, '专用发票', '2026-06-29 13:05:40.538209', '-');
-INSERT INTO `invoices` VALUES (4, 90000.00, 79646.02, NULL, '服务器采购', 'CG20260501', '2026-06-29 13:05:40.546736', 'input', 'INV2026004', '2026-06-09', '联想集团', NULL, '筱凡网络科技', NULL, NULL, 10353.98, 0.13, '专用发票', '2026-06-29 13:05:40.546736', '-');
-INSERT INTO `invoices` VALUES (5, 10000.00, 9900.99, NULL, '智慧校园平台开发合同', 'HT20260501', '2026-06-29 17:04:41.274556', NULL, 'INV-20260629-005', '2026-06-29', '11', '', '11', '', '', 99.01, 0.01, '普通发票', '2026-06-29 17:04:41.274556', NULL);
 
 -- ----------------------------
 -- Table structure for notification_config
 -- ----------------------------
 DROP TABLE IF EXISTS `notification_config`;
 CREATE TABLE `notification_config`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `channel_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `config_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `created_at` datetime(6) NULL DEFAULT NULL,
@@ -166,7 +148,7 @@ CREATE TABLE `notification_config`  (
   `updated_at` datetime(6) NULL DEFAULT NULL,
   `webhook_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of notification_config
@@ -178,41 +160,27 @@ INSERT INTO `notification_config` VALUES (1, 'dingtalk', '钉钉提醒', '2026-0
 -- ----------------------------
 DROP TABLE IF EXISTS `notification_log`;
 CREATE TABLE `notification_log`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `channel_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `created_at` datetime(6) NULL DEFAULT NULL,
   `message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
-  `milestone_id` bigint(20) NULL DEFAULT NULL,
+  `milestone_id` bigint NULL DEFAULT NULL,
   `remind_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `sent_at` datetime(6) NULL DEFAULT NULL,
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of notification_log
 -- ----------------------------
-INSERT INTO `notification_log` VALUES (1, 'dingtalk', '2026-06-30 10:02:52.606595', '发送成功', 1, 'manual', '2026-06-30 10:02:52.604090', 'success');
-INSERT INTO `notification_log` VALUES (2, 'dingtalk', '2026-06-30 10:02:58.872327', '发送成功', 1, 'manual', '2026-06-30 10:02:58.871326', 'success');
-INSERT INTO `notification_log` VALUES (3, 'dingtalk', '2026-06-30 10:10:22.969934', '发送失败，请检查Webhook地址和配置', 1, 'manual', '2026-06-30 10:10:22.967927', 'fail');
-INSERT INTO `notification_log` VALUES (4, 'dingtalk', '2026-06-30 10:10:40.871319', '发送失败，请检查Webhook地址和配置', 1, 'manual', '2026-06-30 10:10:40.870318', 'fail');
-INSERT INTO `notification_log` VALUES (5, 'dingtalk', '2026-06-30 10:12:31.232665', '发送失败，请检查Webhook地址和配置', 1, 'manual', '2026-06-30 10:12:31.231654', 'fail');
-INSERT INTO `notification_log` VALUES (6, 'dingtalk', '2026-06-30 10:13:03.789547', '发送失败，请检查Webhook地址和配置', 1, 'manual', '2026-06-30 10:13:03.788562', 'fail');
-INSERT INTO `notification_log` VALUES (7, 'dingtalk', '2026-06-30 10:14:56.296095', 'API错误: {\"errcode\":310000,\"errmsg\":\"错误描述:机器人发送签名不匹配;解决方案:请确认签名和生成签名的时间戳必须都放在调用的网址中，请确认机器人的密钥加密和填写正确;参考链接:请参考本接口对应文档获得具体要求，或者在https://open.dingtalk.com/documen', 1, 'manual', '2026-06-30 10:14:56.294086', 'fail');
-INSERT INTO `notification_log` VALUES (8, 'dingtalk', '2026-06-30 10:17:29.365807', 'ok', 1, 'manual', '2026-06-30 10:17:29.363532', 'success');
-INSERT INTO `notification_log` VALUES (9, 'dingtalk', '2026-06-30 10:18:32.961918', 'ok', 2, 'manual', '2026-06-30 10:18:32.960911', 'success');
-INSERT INTO `notification_log` VALUES (10, 'dingtalk', '2026-06-30 10:18:57.146617', 'ok', 4, 'manual', '2026-06-30 10:18:57.146089', 'success');
-INSERT INTO `notification_log` VALUES (11, 'dingtalk', '2026-06-30 10:25:41.957440', 'ok', 1, 'manual', '2026-06-30 10:25:41.956432', 'success');
-INSERT INTO `notification_log` VALUES (12, 'dingtalk', '2026-06-30 10:29:52.006891', 'ok', 4, 'manual', '2026-06-30 10:29:52.004244', 'success');
-INSERT INTO `notification_log` VALUES (13, 'dingtalk', '2026-06-30 12:40:42.558482', '发送失败', 4, 'before_end', '2026-06-30 12:40:42.520873', 'fail');
-INSERT INTO `notification_log` VALUES (14, 'dingtalk', '2026-06-30 12:52:04.067651', 'ok', 4, 'manual', '2026-06-30 12:52:04.065197', 'success');
 
 -- ----------------------------
 -- Table structure for payment_plans
 -- ----------------------------
 DROP TABLE IF EXISTS `payment_plans`;
 CREATE TABLE `payment_plans`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `contract_name` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `contract_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `created_at` datetime(6) NULL DEFAULT NULL,
@@ -230,21 +198,18 @@ CREATE TABLE `payment_plans`  (
   `unpaid_amount` decimal(18, 2) NULL DEFAULT NULL,
   `updated_at` datetime(6) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of payment_plans
 -- ----------------------------
-INSERT INTO `payment_plans` VALUES (1, '智慧校园平台开发合同', 'HT20260501', '2026-06-29 13:05:40.578327', 'receipt', NULL, 120000.00, '筱凡网络科技', '南京科技公司', 'PS-202605-001', 120000.00, '2026-07-29', 100.00, NULL, 'paid', 0.00, '2026-06-29 13:05:40.578327');
-INSERT INTO `payment_plans` VALUES (2, '智慧校园平台开发合同', 'HT20260501', '2026-06-29 13:05:40.603416', 'receipt', NULL, 0.00, '筱凡网络科技', '南京科技公司', 'PS-202606-002', 460000.00, '2026-09-27', 0.00, NULL, 'unpaid', 460000.00, '2026-06-29 13:05:40.603416');
-INSERT INTO `payment_plans` VALUES (3, '白炭黑生产系统', 'HT20260502', '2026-06-29 13:05:40.643543', 'receipt', NULL, 300000.00, '成者为译', '中铁建二十局', 'PS-202605-003', 300000.00, '2026-06-19', 100.00, NULL, 'paid', 0.00, '2026-06-29 13:05:40.643543');
 
 -- ----------------------------
 -- Table structure for payment_records
 -- ----------------------------
 DROP TABLE IF EXISTS `payment_records`;
 CREATE TABLE `payment_records`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `account` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `amount` decimal(18, 2) NULL DEFAULT NULL,
   `attachment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -266,21 +231,18 @@ CREATE TABLE `payment_records`  (
   `updated_at` datetime(6) NULL DEFAULT NULL,
   `voucher_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of payment_records
 -- ----------------------------
-INSERT INTO `payment_records` VALUES (1, NULL, 120000.00, NULL, '智慧校园平台开发合同', 'HT20260501', '2026-06-29 13:05:40.665599', 'receipt', NULL, NULL, '银行转账', '筱凡网络科技', NULL, '南京科技公司', NULL, '2026-06-04', 'RC-202605-001', NULL, 'confirmed', '2026-06-29 13:05:40.665599', NULL);
-INSERT INTO `payment_records` VALUES (2, NULL, 300000.00, NULL, '白炭黑生产系统', 'HT20260502', '2026-06-29 13:05:40.680071', 'receipt', NULL, NULL, '银行转账', '成者为译', NULL, '中铁建二十局', NULL, '2026-06-19', 'RC-202605-002', NULL, 'confirmed', '2026-06-29 13:05:40.680071', NULL);
-INSERT INTO `payment_records` VALUES (3, NULL, 10000.00, NULL, '智慧校园平台开发合同', 'HT20260501', '2026-06-29 13:05:40.693448', 'receipt', NULL, NULL, '银行转账', '筱凡网络科技', NULL, '南京科技公司', NULL, '2026-06-24', 'RC-202605-003', NULL, 'pending', '2026-06-29 13:05:40.693448', NULL);
 
 -- ----------------------------
 -- Table structure for project_milestones
 -- ----------------------------
 DROP TABLE IF EXISTS `project_milestones`;
 CREATE TABLE `project_milestones`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `actual_end_date` date NULL DEFAULT NULL,
   `actual_start_date` date NULL DEFAULT NULL,
   `assignee` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -293,26 +255,22 @@ CREATE TABLE `project_milestones`  (
   `project_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `stage_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `stage_order` int(11) NULL DEFAULT NULL,
+  `stage_order` int NULL DEFAULT NULL,
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `updated_at` datetime(6) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of project_milestones
 -- ----------------------------
-INSERT INTO `project_milestones` VALUES (1, NULL, '2026-06-30', '111', '2026-06-30 09:59:16.266072', '111', '2027-06-30', '2026-06-30', 0.00, '苏州爱华MES项目', 'NM260101', '111', '111', 1, 'completed', '2026-06-30 12:51:44.170881');
-INSERT INTO `project_milestones` VALUES (2, NULL, NULL, '', '2026-06-30 10:16:24.958382', '', NULL, NULL, 0.00, '白炭黑绿化工程', 'LY-BTH-01', '', '', 1, 'pending', '2026-06-30 10:16:24.958382');
-INSERT INTO `project_milestones` VALUES (3, NULL, NULL, '', '2026-06-30 10:16:31.463565', '', NULL, NULL, 0.00, '智慧校园项目', '202603001', '', '', 1, 'pending', '2026-06-30 10:16:31.464567');
-INSERT INTO `project_milestones` VALUES (4, NULL, '2026-06-30', '222', '2026-06-30 10:18:53.731779', '222', '2026-07-07', '2026-06-30', 0.00, '苏州爱华MES项目', 'NM260101', '222', '222', 2, 'pending', '2026-06-30 10:18:53.731779');
 
 -- ----------------------------
 -- Table structure for projects
 -- ----------------------------
 DROP TABLE IF EXISTS `projects`;
 CREATE TABLE `projects`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `attachment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `budget_amount` decimal(18, 2) NULL DEFAULT NULL,
   `created_at` datetime(6) NULL DEFAULT NULL,
@@ -329,21 +287,18 @@ CREATE TABLE `projects`  (
   `updated_at` datetime(6) NULL DEFAULT NULL,
   `year` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of projects
 -- ----------------------------
-INSERT INTO `projects` VALUES (3, NULL, 100000.00, '2026-06-29 13:05:39.792197', '苏州爱华', '2026-12-29', '张总', '苏州爱华MES项目', 'NM260101', '实施项目', NULL, NULL, '2026-03-29', 'in_progress', '2026-06-29 13:41:55.825384', '2026');
-INSERT INTO `projects` VALUES (4, NULL, 1000000.00, '2026-06-29 13:05:39.822405', '中铁建二十局', '2026-12-29', '李经理', '白炭黑绿化工程', 'LY-BTH-01', '咨询项目', NULL, NULL, '2026-03-29', 'in_progress', '2026-06-29 13:43:31.580304', '2026');
-INSERT INTO `projects` VALUES (5, NULL, 5000000.00, '2026-06-29 13:05:39.839531', '', '2026-12-29', '王工', '智慧校园项目', '202603001', '集成项目', NULL, NULL, '2026-03-29', 'in_progress', '2026-06-29 13:05:39.839531', '2026');
 
 -- ----------------------------
 -- Table structure for sys_company
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_company`;
 CREATE TABLE `sys_company`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `address` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `bank_account` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `bank_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -357,7 +312,7 @@ CREATE TABLE `sys_company`  (
   `tax_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `updated_at` datetime(6) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_company
@@ -369,19 +324,19 @@ INSERT INTO `sys_company` VALUES (1, '南京市鼓楼区广东路38号物联网�
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dept`;
 CREATE TABLE `sys_dept`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) NULL DEFAULT NULL,
   `dept_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `dept_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `manager` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `parent_id` bigint(20) NULL DEFAULT NULL,
+  `parent_id` bigint NULL DEFAULT NULL,
   `phone` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
-  `sort_order` int(11) NULL DEFAULT NULL,
+  `sort_order` int NULL DEFAULT NULL,
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `updated_at` datetime(6) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dept
@@ -396,7 +351,7 @@ INSERT INTO `sys_dept` VALUES (4, '2026-06-29 10:22:47.065039', 'TECH', '技术�
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_item`;
 CREATE TABLE `sys_dict_item`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) NULL DEFAULT NULL,
   `dict_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `is_default` bit(1) NULL DEFAULT NULL,
@@ -404,12 +359,12 @@ CREATE TABLE `sys_dict_item`  (
   `payable_default` bit(1) NULL DEFAULT NULL,
   `receivable_default` bit(1) NULL DEFAULT NULL,
   `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
-  `sort_order` int(11) NULL DEFAULT NULL,
+  `sort_order` int NULL DEFAULT NULL,
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `updated_at` datetime(6) NULL DEFAULT NULL,
   `value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 62 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 62 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_item
@@ -481,7 +436,7 @@ INSERT INTO `sys_dict_item` VALUES (61, '2026-06-29 13:59:15.766935', 'invoice_t
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_fund_account`;
 CREATE TABLE `sys_fund_account`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `account_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `account_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `bank_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -493,7 +448,7 @@ CREATE TABLE `sys_fund_account`  (
   `balance` decimal(18, 2) NULL DEFAULT NULL,
   `is_default` bit(1) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_fund_account
@@ -505,7 +460,7 @@ INSERT INTO `sys_fund_account` VALUES (2, '基本户', '10111001040011227', '农
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_login_log`;
 CREATE TABLE `sys_login_log`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) NULL DEFAULT NULL,
   `ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `login_time` datetime(6) NULL DEFAULT NULL,
@@ -513,7 +468,7 @@ CREATE TABLE `sys_login_log`  (
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `username` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 36 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 37 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_login_log
@@ -553,13 +508,14 @@ INSERT INTO `sys_login_log` VALUES (32, '2026-06-30 10:25:12.816686', NULL, '202
 INSERT INTO `sys_login_log` VALUES (33, '2026-06-30 10:25:22.794578', NULL, '2026-06-30 10:25:22.793577', '登录成功', 'success', 'admin');
 INSERT INTO `sys_login_log` VALUES (34, '2026-06-30 10:25:28.513363', NULL, '2026-06-30 10:25:28.512359', '登录成功', 'success', 'admin');
 INSERT INTO `sys_login_log` VALUES (35, '2026-06-30 10:28:12.134913', NULL, '2026-06-30 10:28:12.128202', '登录成功', 'success', 'admin');
+INSERT INTO `sys_login_log` VALUES (36, '2026-06-30 14:43:23.199687', NULL, '2026-06-30 14:43:23.192805', '登录成功', 'success', 'admin');
 
 -- ----------------------------
 -- Table structure for sys_operation_log
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_operation_log`;
 CREATE TABLE `sys_operation_log`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `action` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `created_at` datetime(6) NULL DEFAULT NULL,
   `detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
@@ -569,7 +525,7 @@ CREATE TABLE `sys_operation_log`  (
   `target` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `username` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 26 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 26 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_operation_log
@@ -605,16 +561,16 @@ INSERT INTO `sys_operation_log` VALUES (25, '修改', '2026-06-30 12:51:44.38145
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_post`;
 CREATE TABLE `sys_post`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) NULL DEFAULT NULL,
   `post_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `post_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
-  `sort_order` int(11) NULL DEFAULT NULL,
+  `sort_order` int NULL DEFAULT NULL,
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `updated_at` datetime(6) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_post
@@ -628,17 +584,17 @@ INSERT INTO `sys_post` VALUES (3, '2026-06-29 10:22:47.156453', 'EMP', '普通�
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) NULL DEFAULT NULL,
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `role_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `role_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `sort_order` int(11) NULL DEFAULT NULL,
+  `sort_order` int NULL DEFAULT NULL,
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `updated_at` datetime(6) NULL DEFAULT NULL,
   `menu_codes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role
@@ -651,7 +607,7 @@ INSERT INTO `sys_role` VALUES (2, '2026-06-29 10:22:46.585777', '普通用户角
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) NULL DEFAULT NULL,
   `dept_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `email` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -670,19 +626,19 @@ CREATE TABLE `sys_user`  (
   `company_names` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `UK_51bvuyvihefoh4kp5syh2jpi4`(`username` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, '2026-06-29 09:44:53.640873', '技术部', 'mingyuxuezhang@qq.com', '男', '2026-06-30 10:28:12.246601', '$2a$10$2e14.A/SvjjXrRpUozkcRO3VqTy9n8BQCX8EVdSkk9oRd9qJluhyO', '19895906930', '普通员工', '管理员', NULL, '超级管理员', 'normal', '2026-06-30 10:28:12.250626', 'admin', '1', '南京盛网信息科技有限公司');
+INSERT INTO `sys_user` VALUES (1, '2026-06-29 09:44:53.640873', '技术部', 'mingyuxuezhang@qq.com', '男', '2026-06-30 14:43:23.262776', '$2a$10$2e14.A/SvjjXrRpUozkcRO3VqTy9n8BQCX8EVdSkk9oRd9qJluhyO', '19895906930', '普通员工', '管理员', NULL, '超级管理员', 'normal', '2026-06-30 14:43:23.270374', 'admin', '1', '南京盛网信息科技有限公司');
 
 -- ----------------------------
 -- Table structure for system_config
 -- ----------------------------
 DROP TABLE IF EXISTS `system_config`;
 CREATE TABLE `system_config`  (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `config_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `config_value` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `created_at` datetime(6) NULL DEFAULT NULL,
@@ -690,7 +646,7 @@ CREATE TABLE `system_config`  (
   `updated_at` datetime(6) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `UK_npsxm1erd0lbetjn5d3ayrsof`(`config_key` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of system_config
