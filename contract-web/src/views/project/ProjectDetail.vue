@@ -50,9 +50,7 @@
               <div v-if="s.deliverableContent" style="margin-top:4px;padding:6px 10px;background:#fafafa;border-radius:4px;border-left:3px solid #1890ff;color:#333">
                 📋 {{ s.deliverableContent }}
               </div>
-              <div v-if="s.progress !== undefined && s.progress !== null" style="margin-top:4px">
-                <a-progress :percent="s.progress" size="small" style="width:200px" />
-              </div>
+              <!-- 阶段进度由状态自动计算 -->
             </div>
             <div style="white-space:nowrap;margin-left:12px">
               <a-button type="link" size="small" @click="editStage(s)">编辑</a-button>
@@ -80,7 +78,6 @@
             <a-select-option value="completed">已完成</a-select-option>
             <a-select-option value="delayed">已延期</a-select-option>
           </a-select></a-form-item></a-col>
-          <a-col :span="12"><a-form-item label="进度 %"><a-slider v-model:value="form.progress" :min="0" :max="100" :step="5" /></a-form-item></a-col>
           <a-col :span="12"><a-form-item label="实际开始"><a-date-picker v-model:value="form.actualStartDate" style="width:100%" /></a-form-item></a-col>
           <a-col :span="24"><a-form-item label="交付内容"><a-textarea v-model:value="form.deliverableContent" :rows="3" placeholder="描述该阶段需要交付的内容" /></a-form-item></a-col>
           <a-col :span="24"><a-form-item label="备注"><a-textarea v-model:value="form.remark" :rows="2" /></a-form-item></a-col>
@@ -115,7 +112,7 @@ const saving = ref(false)
 const form = reactive<any>({
   projectNo: '', projectName: '', stageName: '', stageOrder: 1, assignee: '',
   plannedStartDate: null, plannedEndDate: null, actualStartDate: null, actualEndDate: null,
-  status: 'pending', progress: 0, deliverableContent: '', remark: ''
+  status: 'pending', deliverableContent: '', remark: ''
 })
 
 onMounted(async () => {
@@ -159,7 +156,7 @@ function showAdd() {
     projectNo: project.value?.projectNo || '', projectName: project.value?.projectName || '',
     stageName: '', stageOrder: stages.value.length + 1, assignee: '',
     plannedStartDate: null, plannedEndDate: null, actualStartDate: null, actualEndDate: null,
-    status: 'pending', progress: 0, deliverableContent: '', remark: ''
+    status: 'pending', deliverableContent: '', remark: ''
   })
   modalVisible.value = true
 }

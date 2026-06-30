@@ -70,6 +70,25 @@ public class ProjectMilestoneController {
         return Result.ok("删除成功");
     }
 
+    // === 批量进度查询 ===
+    @GetMapping("/progress/batch")
+    public Result<?> getBatchProgress() {
+        List<ProjectMilestone> all = milestoneRepository.findAll();
+        Map<String, Map<String, Object>> result = new java.util.HashMap<>();
+        all.stream().collect(java.util.stream.Collectors.groupingBy(ProjectMilestone::getProjectNo))
+            .forEach((projectNo, list) -> {
+                int total = list.size();
+                long completed = list.stream().filter(m -> "completed".equals(m.getStatus())).count();
+                double percent = total > 0 ? (double) completed / total * 100 : 0;
+                Map<String, Object> data = new java.util.HashMap<>();
+                data.put("total", total);
+                data.put("completed", completed);
+                data.put("percent", Math.round(percent * 100.0) / 100.0);
+                result.put(projectNo, data);
+            });
+        return Result.ok(result);
+    }
+
     // === 通知配置 CRUD ===
     @GetMapping("/notify-configs")
     public Result<?> getNotifyConfigs() {

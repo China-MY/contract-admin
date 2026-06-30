@@ -16,6 +16,13 @@
       <template #bodyCell="{column,record}">
         <template v-if="column.key==='status'"><a-tag :color="record.status==='completed'?'green':record.status==='in_progress'?'blue':'orange'">{{record.status==='completed'?'已完成':record.status==='in_progress'?'进行中':'立项'}}</a-tag></template>
         <template v-else-if="column.key==='budgetAmount'">¥{{(record.budgetAmount||0).toLocaleString()}}</template>
+        <template v-else-if="column.key==='progress'">
+          <template v-if="progressMap[record.projectNo]">
+            <a-progress :percent="progressMap[record.projectNo].percent" size="small" style="width:120px;display:inline-block" />
+            <span style="font-size:12px;color:#999;margin-left:4px">{{progressMap[record.projectNo].completed}}/{{progressMap[record.projectNo].total}}</span>
+          </template>
+          <span v-else style="color:#ccc">-</span>
+        </template>
         <template v-else-if="column.key==='action'">
           <a-button type="link" size="small" @click="edit(record)">编辑</a-button>
           <a-button type="link" size="small" @click="router.push('/project/detail/'+record.id)">详情</a-button>
@@ -68,19 +75,23 @@ const columns=[
   {title:'项目年度',dataIndex:'year',width:80},{title:'项目来源',dataIndex:'source',width:100},
   {title:'项目经理',dataIndex:'manager',width:100},{title:'开始日期',dataIndex:'startDate',width:100},
   {title:'计划结束',dataIndex:'endDate',width:100},{title:'预算金额',key:'budgetAmount',width:120},
-  {title:'客户名称',dataIndex:'customerName',width:140},{title:'备注',dataIndex:'remark',width:200},
-  {title:'操作',key:'action',width:80,fixed:'right' as const},
+  {title:'项目进度',key:'progress',width:140},{title:'客户名称',dataIndex:'customerName',width:140},
+  {title:'操作',key:'action',width:120,fixed:'right' as const},
 ]
 const modalVisible=ref(false);const currentRecord=ref<any>(null);const modalTitle=ref('')
 const formModel=ref<any>({projectNo:'',projectName:'',projectType:'',status:'init',year:'',source:'',manager:'',customerName:'',startDate:null,endDate:null,budgetAmount:0,remark:''})
 const customerOpts=ref<any[]>([])
+const progressMap=ref<Record<string,any>>({})
 
 onMounted(()=>{loadData();loadCustomers()})
 
 async function loadCustomers(){try{const r=await authFetch('/api/options');const d=await r.json();if(d.code===200)customerOpts.value=(d.data.customers||[]).map((x:any)=>({label:x.label||x,value:x.label||x}))}catch{}}
 async function loadData(){loading.value=true;const p=new URLSearchParams({page:String(pagination.current),size:String(pagination.pageSize)})
   const res=await authFetch(`/api/projects?${p}`);const d=await res.json()
-  if(d.code===200){dataList.value=d.data.records;pagination.total=d.data.total};loading.value=false}
+  if(d.code===200){dataList.value=d.data.records;pagination.total=d.data.total}
+  // 批量获取进度
+  try{const r2=await authFetch('/api/project-milestones/progress/batch');const d2=await r2.json();if(d2.code===200)progressMap.value=d2.data||{}}catch{}
+  loading.value=false}
 function reset(){Object.assign(sf,{keyword:'',type:'',status:''});loadData()}
 function onChange(pag:any){pagination.current=pag.current;pagination.pageSize=pag.pageSize;loadData()}
 function genProjectNo() {
