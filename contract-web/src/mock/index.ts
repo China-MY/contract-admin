@@ -232,24 +232,25 @@ async function mockHandler(url: string, options?: RequestInit): Promise<Response
   if (method === 'PUT' && url.startsWith('/api/contracts/') && !isNaN(Number(url.split('/')[3]))) {
     const id = Number(url.split('/')[3])
     let idx = receivableContracts.findIndex(c => c.id === id)
-    let list = receivableContracts
-    if (idx < 0) { idx = payableContracts.findIndex(c => c.id === id); list = payableContracts }
+    let list: any[] = receivableContracts
+    if (idx < 0) { idx = payableContracts.findIndex(c => c.id === id); list = payableContracts as any }
     if (idx >= 0) {
-      list[idx] = { ...list[idx], ...body, id }
+      const item: any = list[idx]
+      Object.assign(item, body, { id })
       // 重新计算衍生字段
-      list[idx].unreceivedAmount = (list[idx].contractAmount ?? 0) - (list[idx].receivedAmount ?? 0)
-      list[idx].uninvoicedAmount = (list[idx].settlementAmount ?? 0) - (list[idx].invoicedAmount ?? 0)
-      list[idx].receiptStatus = (list[idx].receivedAmount ?? 0) >= (list[idx].contractAmount ?? 0) ? 'completed'
-        : (list[idx].receivedAmount ?? 0) > 0 ? 'partial' : 'unreceived'
-      list[idx].receiptProgress = (list[idx].contractAmount ?? 0) > 0 ? ((list[idx].receivedAmount ?? 0) / (list[idx].contractAmount ?? 0)) * 100 : 0
-      list[idx].invoiceProgress = (list[idx].settlementAmount ?? 0) > 0 ? ((list[idx].invoicedAmount ?? 0) / (list[idx].settlementAmount ?? 0)) * 100 : 0
-      list[idx].unpaidAmount = (list[idx].contractAmount ?? 0) - (list[idx].paidAmount ?? 0)
-      list[idx].unreceivedInvoiceAmount = (list[idx].settlementAmount ?? 0) - (list[idx].receivedInvoiceAmount ?? 0)
-      list[idx].paymentStatus = (list[idx].paidAmount ?? 0) >= (list[idx].contractAmount ?? 0) ? 'completed'
-        : (list[idx].paidAmount ?? 0) > 0 ? 'partial' : 'unpaid'
-      list[idx].paymentProgress = (list[idx].contractAmount ?? 0) > 0 ? ((list[idx].paidAmount ?? 0) / (list[idx].contractAmount ?? 0)) * 100 : 0
-      list[idx].receivedInvoiceProgress = (list[idx].settlementAmount ?? 0) > 0 ? ((list[idx].receivedInvoiceAmount ?? 0) / (list[idx].settlementAmount ?? 0)) * 100 : 0
-      list[idx].profit = (list[idx].contractAmount ?? 0) - (list[idx].procurementContractAmount ?? 0)
+      item.unreceivedAmount = (item.contractAmount ?? 0) - (item.receivedAmount ?? 0)
+      item.uninvoicedAmount = (item.settlementAmount ?? 0) - (item.invoicedAmount ?? 0)
+      item.receiptStatus = (item.receivedAmount ?? 0) >= (item.contractAmount ?? 0) ? 'completed'
+        : (item.receivedAmount ?? 0) > 0 ? 'partial' : 'unreceived'
+      item.receiptProgress = (item.contractAmount ?? 0) > 0 ? ((item.receivedAmount ?? 0) / (item.contractAmount ?? 0)) * 100 : 0
+      item.invoiceProgress = (item.settlementAmount ?? 0) > 0 ? ((item.invoicedAmount ?? 0) / (item.settlementAmount ?? 0)) * 100 : 0
+      item.unpaidAmount = (item.contractAmount ?? 0) - (item.paidAmount ?? 0)
+      item.unreceivedInvoiceAmount = (item.settlementAmount ?? 0) - (item.receivedInvoiceAmount ?? 0)
+      item.paymentStatus = (item.paidAmount ?? 0) >= (item.contractAmount ?? 0) ? 'completed'
+        : (item.paidAmount ?? 0) > 0 ? 'partial' : 'unpaid'
+      item.paymentProgress = (item.contractAmount ?? 0) > 0 ? ((item.paidAmount ?? 0) / (item.contractAmount ?? 0)) * 100 : 0
+      item.receivedInvoiceProgress = (item.settlementAmount ?? 0) > 0 ? ((item.receivedInvoiceAmount ?? 0) / (item.settlementAmount ?? 0)) * 100 : 0
+      item.profit = (item.contractAmount ?? 0) - (item.procurementContractAmount ?? 0)
     }
     return jsonResponse({ code: 200, msg: '保存成功' })
   }

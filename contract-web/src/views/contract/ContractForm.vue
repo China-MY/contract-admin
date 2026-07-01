@@ -188,7 +188,7 @@ async function handleSave() {
     const d = await res.json()
     if (d.code === 200) { message.success('保存成功'); emit('saved') }
     else message.error(d.msg || '操作失败')
-  } catch (e) {
+  } catch (e: any) {
     if (e.message !== '未认证或token已过期') message.error('保存失败: ' + (e.message || '未知错误'))
   } finally {
     saving.value = false
