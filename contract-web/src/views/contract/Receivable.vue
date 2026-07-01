@@ -88,6 +88,9 @@
           </template>
           <template v-else-if="column.key === 'action'">
             <a-button type="link" size="small" @click="editRecord(record)">编辑</a-button>
+            <a-popconfirm title="确定删除该合同吗？" @confirm="deleteRecord(record)" okText="确定" cancelText="取消">
+              <a-button type="link" size="small" danger>删除</a-button>
+            </a-popconfirm>
           </template>
         </template>
       </a-table>
@@ -206,6 +209,15 @@ function editRecord(record: any) {
   currentRecord.value = { ...record }
   modalTitle.value = '编辑应收合同'
   modalVisible.value = true
+}
+
+async function deleteRecord(record: any) {
+  try {
+    const res = await authFetch(`/api/contracts/${record.id}`, { method: 'DELETE' })
+    const data = await res.json()
+    if (data.code === 200) { message.success('删除成功'); loadData() }
+    else message.error(data.msg || '删除失败')
+  } catch {}
 }
 
 function onSaved() {

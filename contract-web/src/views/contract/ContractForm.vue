@@ -177,16 +177,21 @@ onMounted(() => {
 
 async function handleSave() {
   saving.value = true
-  const payload = { ...form }
-  if (payload.signDate) payload.signDate = dayjs(payload.signDate).format('YYYY-MM-DD')
-  if (payload.endDate) payload.endDate = dayjs(payload.endDate).format('YYYY-MM-DD')
-  if (!payload.contractNo || payload.contractNo.endsWith('-XXX')) delete payload.contractNo
-  const url = props.record ? `/api/contracts/${props.record.id}` : '/api/contracts'
-  const method = props.record ? 'PUT' : 'POST'
-  const res = await authFetch(url, { method, body: JSON.stringify(payload) })
-  const d = await res.json()
-  if (d.code === 200) { message.success('保存成功'); emit('saved') }
-  else message.error(d.msg || '操作失败')
-  saving.value = false
+  try {
+    const payload = { ...form }
+    if (payload.signDate) payload.signDate = dayjs(payload.signDate).format('YYYY-MM-DD')
+    if (payload.endDate) payload.endDate = dayjs(payload.endDate).format('YYYY-MM-DD')
+    if (!payload.contractNo || payload.contractNo.endsWith('-XXX')) delete payload.contractNo
+    const url = props.record ? `/api/contracts/${props.record.id}` : '/api/contracts'
+    const method = props.record ? 'PUT' : 'POST'
+    const res = await authFetch(url, { method, body: JSON.stringify(payload) })
+    const d = await res.json()
+    if (d.code === 200) { message.success('保存成功'); emit('saved') }
+    else message.error(d.msg || '操作失败')
+  } catch (e) {
+    if (e.message !== '未认证或token已过期') message.error('保存失败: ' + (e.message || '未知错误'))
+  } finally {
+    saving.value = false
+  }
 }
 </script>

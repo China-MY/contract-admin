@@ -193,6 +193,80 @@ async function mockHandler(url: string, options?: RequestInit): Promise<Response
     return jsonResponse({ code: 200, data: { ...paginate(list, page, size), totalAmount } })
   }
 
+  // 新建合同
+  if (url === '/api/contracts' && method === 'POST') {
+    const c = { ...body }
+    c.id = Math.max(...receivableContracts.map(x => x.id), ...payableContracts.map(x => x.id), 0) + 1
+    c.direction = c.direction || 'receivable'
+    if (!c.contractNo) {
+      const d = new Date()
+      const ds = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0')
+      c.contractNo = (c.direction === 'receivable' ? 'CT-R-' : 'CT-P-') + ds + '-' + String(c.id).padStart(3,'0')
+    }
+    // 确保结算/已收/未收字段初始化
+    c.settlementAmount = c.settlementAmount ?? c.contractAmount ?? 0
+    c.receivedAmount = c.receivedAmount ?? 0
+    c.invoicedAmount = c.invoicedAmount ?? 0
+    c.unreceivedAmount = c.contractAmount ?? 0
+    c.uninvoicedAmount = c.contractAmount ?? 0
+    c.receiptStatus = 'unreceived'
+    c.receiptProgress = 0
+    c.invoiceProgress = 0
+    c.paidAmount = c.paidAmount ?? 0
+    c.receivedInvoiceAmount = c.receivedInvoiceAmount ?? 0
+    c.unpaidAmount = c.contractAmount ?? 0
+    c.unreceivedInvoiceAmount = c.contractAmount ?? 0
+    c.paymentStatus = 'unpaid'
+    c.paymentProgress = 0
+    c.receivedInvoiceProgress = 0
+    c.profit = (c.contractAmount ?? 0) - (c.procurementContractAmount ?? 0)
+    if (c.direction === 'receivable') {
+      receivableContracts.unshift(c)
+    } else {
+      payableContracts.unshift(c)
+    }
+    return jsonResponse({ code: 200, msg: '保存成功', data: c })
+  }
+
+  // 更新合同
+  if (method === 'PUT' && url.startsWith('/api/contracts/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    let idx = receivableContracts.findIndex(c => c.id === id)
+    let list = receivableContracts
+    if (idx < 0) { idx = payableContracts.findIndex(c => c.id === id); list = payableContracts }
+    if (idx >= 0) {
+      list[idx] = { ...list[idx], ...body, id }
+      // 重新计算衍生字段
+      list[idx].unreceivedAmount = (list[idx].contractAmount ?? 0) - (list[idx].receivedAmount ?? 0)
+      list[idx].uninvoicedAmount = (list[idx].settlementAmount ?? 0) - (list[idx].invoicedAmount ?? 0)
+      list[idx].receiptStatus = (list[idx].receivedAmount ?? 0) >= (list[idx].contractAmount ?? 0) ? 'completed'
+        : (list[idx].receivedAmount ?? 0) > 0 ? 'partial' : 'unreceived'
+      list[idx].receiptProgress = (list[idx].contractAmount ?? 0) > 0 ? ((list[idx].receivedAmount ?? 0) / (list[idx].contractAmount ?? 0)) * 100 : 0
+      list[idx].invoiceProgress = (list[idx].settlementAmount ?? 0) > 0 ? ((list[idx].invoicedAmount ?? 0) / (list[idx].settlementAmount ?? 0)) * 100 : 0
+      list[idx].unpaidAmount = (list[idx].contractAmount ?? 0) - (list[idx].paidAmount ?? 0)
+      list[idx].unreceivedInvoiceAmount = (list[idx].settlementAmount ?? 0) - (list[idx].receivedInvoiceAmount ?? 0)
+      list[idx].paymentStatus = (list[idx].paidAmount ?? 0) >= (list[idx].contractAmount ?? 0) ? 'completed'
+        : (list[idx].paidAmount ?? 0) > 0 ? 'partial' : 'unpaid'
+      list[idx].paymentProgress = (list[idx].contractAmount ?? 0) > 0 ? ((list[idx].paidAmount ?? 0) / (list[idx].contractAmount ?? 0)) * 100 : 0
+      list[idx].receivedInvoiceProgress = (list[idx].settlementAmount ?? 0) > 0 ? ((list[idx].receivedInvoiceAmount ?? 0) / (list[idx].settlementAmount ?? 0)) * 100 : 0
+      list[idx].profit = (list[idx].contractAmount ?? 0) - (list[idx].procurementContractAmount ?? 0)
+    }
+    return jsonResponse({ code: 200, msg: '保存成功' })
+  }
+
+  // 删除合同
+  if (method === 'DELETE' && url.startsWith('/api/contracts/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    let idx = receivableContracts.findIndex(c => c.id === id)
+    if (idx >= 0) {
+      receivableContracts.splice(idx, 1)
+    } else {
+      idx = payableContracts.findIndex(c => c.id === id)
+      if (idx >= 0) payableContracts.splice(idx, 1)
+    }
+    return jsonResponse({ code: 200, msg: '删除成功' })
+  }
+
   // 发票列表
   if (url.startsWith('/api/invoices') && method === 'GET') {
     const urlObj = new URL(url, 'http://localhost')
@@ -204,6 +278,34 @@ async function mockHandler(url: string, options?: RequestInit): Promise<Response
     return jsonResponse({ code: 200, data: { ...paginate(list, page, size), totalAmount } })
   }
 
+  // 新建发票
+  if (url === '/api/invoices' && method === 'POST') {
+    const inv = { ...body }
+    inv.id = Math.max(...outputInvoices.map(x => x.id), ...inputInvoices.map(x => x.id), 0) + 1
+    const list = (inv.direction || 'output') === 'output' ? outputInvoices : inputInvoices
+    list.unshift(inv)
+    return jsonResponse({ code: 200, msg: '保存成功', data: inv })
+  }
+
+  // 更新发票
+  if (method === 'PUT' && url.startsWith('/api/invoices/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    let idx = outputInvoices.findIndex(c => c.id === id)
+    let list = outputInvoices
+    if (idx < 0) { idx = inputInvoices.findIndex(c => c.id === id); list = inputInvoices }
+    if (idx >= 0) list[idx] = { ...list[idx], ...body, id }
+    return jsonResponse({ code: 200, msg: '保存成功' })
+  }
+
+  // 删除发票
+  if (method === 'DELETE' && url.startsWith('/api/invoices/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    let idx = outputInvoices.findIndex(c => c.id === id)
+    if (idx >= 0) outputInvoices.splice(idx, 1)
+    else { idx = inputInvoices.findIndex(c => c.id === id); if (idx >= 0) inputInvoices.splice(idx, 1) }
+    return jsonResponse({ code: 200, msg: '删除成功' })
+  }
+
   // 资金计划
   if (url.startsWith('/api/payment-plans') && method === 'GET') {
     const urlObj = new URL(url, 'http://localhost')
@@ -212,6 +314,28 @@ async function mockHandler(url: string, options?: RequestInit): Promise<Response
     const size = parseInt(urlObj.searchParams.get('size') || '10')
     const list = direction === 'receipt' ? receiptPlans : payPlans
     return jsonResponse({ code: 200, data: paginate(list, page, size) })
+  }
+  if (url === '/api/payment-plans' && method === 'POST') {
+    const p = { ...body }
+    p.id = Math.max(...receiptPlans.map(x => x.id), ...payPlans.map(x => x.id), 0) + 1
+    const list = (p.direction || 'receipt') === 'receipt' ? receiptPlans : payPlans
+    list.unshift(p)
+    return jsonResponse({ code: 200, msg: '保存成功' })
+  }
+  if (method === 'PUT' && url.startsWith('/api/payment-plans/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    let idx = receiptPlans.findIndex(c => c.id === id)
+    let list = receiptPlans
+    if (idx < 0) { idx = payPlans.findIndex(c => c.id === id); list = payPlans }
+    if (idx >= 0) list[idx] = { ...list[idx], ...body, id }
+    return jsonResponse({ code: 200, msg: '保存成功' })
+  }
+  if (method === 'DELETE' && url.startsWith('/api/payment-plans/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    let idx = receiptPlans.findIndex(c => c.id === id)
+    if (idx >= 0) receiptPlans.splice(idx, 1)
+    else { idx = payPlans.findIndex(c => c.id === id); if (idx >= 0) payPlans.splice(idx, 1) }
+    return jsonResponse({ code: 200, msg: '删除成功' })
   }
 
   // 资金记录
@@ -223,21 +347,72 @@ async function mockHandler(url: string, options?: RequestInit): Promise<Response
     const list = direction === 'receipt' ? receiptRecords : receiptRecords // simplified
     return jsonResponse({ code: 200, data: paginate(list, page, size) })
   }
+  if (url === '/api/payment-records' && method === 'POST') {
+    const r = { ...body }
+    r.id = Math.max(...receiptRecords.map(x => x.id), 0) + 1
+    receiptRecords.unshift(r)
+    return jsonResponse({ code: 200, msg: '保存成功' })
+  }
+  if (method === 'PUT' && url.startsWith('/api/payment-records/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    const idx = receiptRecords.findIndex(c => c.id === id)
+    if (idx >= 0) receiptRecords[idx] = { ...receiptRecords[idx], ...body, id }
+    return jsonResponse({ code: 200, msg: '保存成功' })
+  }
+  if (method === 'DELETE' && url.startsWith('/api/payment-records/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    const idx = receiptRecords.findIndex(c => c.id === id)
+    if (idx >= 0) receiptRecords.splice(idx, 1)
+    return jsonResponse({ code: 200, msg: '删除成功' })
+  }
 
   // 项目列表
   if (url === '/api/projects' && method === 'GET') {
     const page = 1, size = 10
     return jsonResponse({ code: 200, data: paginate(projects, page, size) })
   }
+  if (url === '/api/projects' && method === 'POST') {
+    const p = { ...body }
+    p.id = Math.max(...projects.map(x => x.id), 0) + 1
+    p.status = p.status || 'init'
+    projects.unshift(p)
+    return jsonResponse({ code: 200, msg: '保存成功', data: p })
+  }
+  if (method === 'PUT' && url.startsWith('/api/projects/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    const idx = projects.findIndex(c => c.id === id)
+    if (idx >= 0) projects[idx] = { ...projects[idx], ...body, id }
+    return jsonResponse({ code: 200, msg: '保存成功' })
+  }
+  if (method === 'DELETE' && url.startsWith('/api/projects/') && !isNaN(Number(url.split('/')[3]))) {
+    const id = Number(url.split('/')[3])
+    const idx = projects.findIndex(c => c.id === id)
+    if (idx >= 0) projects.splice(idx, 1)
+    return jsonResponse({ code: 200, msg: '删除成功' })
+  }
 
   // 客户列表
   if (url === '/api/customers' && method === 'GET') {
     return jsonResponse({ code: 200, data: paginate(customers, 1, 20) })
   }
+  if (url === '/api/customers' && method === 'POST') {
+    const c = { ...body }
+    c.id = Math.max(...customers.map(x => x.id), 0) + 1
+    c.type = c.type || 'customer'
+    customers.unshift(c)
+    return jsonResponse({ code: 200, msg: '保存成功', data: c })
+  }
 
   // 供应商列表
   if (url === '/api/suppliers' && method === 'GET') {
     return jsonResponse({ code: 200, data: paginate(suppliers, 1, 20) })
+  }
+  if (url === '/api/suppliers' && method === 'POST') {
+    const s = { ...body }
+    s.id = Math.max(...suppliers.map(x => x.id), 0) + 1
+    s.type = 'supplier'
+    suppliers.unshift(s)
+    return jsonResponse({ code: 200, msg: '保存成功', data: s })
   }
 
   // 用户列表

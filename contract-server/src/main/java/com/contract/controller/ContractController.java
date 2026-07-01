@@ -5,6 +5,7 @@ import com.contract.entity.*;
 import com.contract.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -124,6 +125,13 @@ public class ContractController {
         if (body.getRemark() != null) c.setRemark(body.getRemark());
         contractRepository.save(c);
         return Result.ok("保存成功");
+    }
+
+    @DeleteMapping("/contracts/{id}")
+    public Result<?> deleteContract(@PathVariable Long id) {
+        if (!contractRepository.existsById(id)) return Result.error("合同不存在");
+        contractRepository.deleteById(id);
+        return Result.ok("删除成功");
     }
 
     @GetMapping("/contracts/summary")
@@ -327,6 +335,7 @@ public class ContractController {
     @PostMapping("/settings/companies")
     public Result<?> createCompany(@RequestBody Company company) {
         company.setId(null);
+        company.setIsDefault(false);
         companyRepository.save(company);
         return Result.ok("保存成功");
     }
@@ -346,9 +355,11 @@ public class ContractController {
         return Result.ok("保存成功");
     }
 
+    @Transactional
     @PutMapping("/settings/companies/{id}/default")
     public Result<?> setDefaultCompany(@PathVariable Long id) {
-        companyRepository.findByIsDefaultTrue().forEach(c -> { c.setIsDefault(false); companyRepository.save(c); });
+        // 先清除所有公司的默认标记，再设置指定公司为默认（使用原生SQL确保原子性）
+        companyRepository.clearAllDefault();
         Company company = companyRepository.findById(id).orElse(null);
         if (company != null) { company.setIsDefault(true); companyRepository.save(company); }
         return Result.ok("设置成功");

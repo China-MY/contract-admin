@@ -78,7 +78,7 @@ async function loadData() {
 function showAdd() {
   currentId.value = null
   modalTitle.value = '新建公司'
-  Object.assign(form, { companyName:'', taxId:'', phone:'', address:'', invoiceTitle:'', bankName:'', bankAccount:'' })
+  Object.assign(form, { companyName:'', taxId:'', phone:'', address:'', invoiceTitle:'', bankName:'', bankAccount:'', isDefault: false })
   modalVisible.value = true
 }
 
@@ -104,6 +104,10 @@ async function handleSave() {
 }
 
 function deleteRecord(record: any) {
+  if (record.isDefault) {
+    message.warning('默认公司不能删除，请先设置其他公司为默认')
+    return
+  }
   Modal.confirm({
     title: '确认删除',
     content: `确定删除公司「${record.companyName}」吗？`,

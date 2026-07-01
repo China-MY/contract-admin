@@ -19,11 +19,15 @@ Thumbs.db
 # Env
 contract-web/.env
 
+# Server config (contains DB credentials)
+contract-server/config/
+
+# Agent
+reasonix.toml
+
 # Reasonix
 .reasonix/
 
 # Logs
 *.log
 npm-debug.log*
-target/
-*.jar
