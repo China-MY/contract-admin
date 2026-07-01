@@ -17,7 +17,7 @@
           <template v-if="column.key === 'amountWithTax'">¥{{ (record.amountWithTax||0).toLocaleString() }}</template>
           <template v-else-if="column.key === 'amountWithoutTax'">¥{{ (record.amountWithoutTax||0).toLocaleString() }}</template>
           <template v-else-if="column.key === 'taxAmount'">¥{{ (record.taxAmount||0).toLocaleString() }}</template>
-          <template v-else-if="column.key === 'action'"><a-button type="link" size="small" @click="editRecord(record)">编辑</a-button></template>
+          <template v-else-if="column.key === 'action'"><a-button type="link" size="small" @click="editRecord(record)">编辑</a-button><a-popconfirm title="确定删除该发票吗？" @confirm="deleteRecord(record)" okText="确定" cancelText="取消"><a-button type="link" size="small" danger>删除</a-button></a-popconfirm></template>
         </template>
       </a-table>
     </a-card>
@@ -67,5 +67,8 @@ function resetSearch() { Object.assign(searchForm,{keyword:'',type:'',date:null}
 function onTableChange(pag:any) { pagination.current=pag.current; pagination.pageSize=pag.pageSize; loadData() }
 function showAdd() { currentRecord.value=null; modalTitle.value='新建销项发票'; modalVisible.value=true }
 function editRecord(record:any) { currentRecord.value={...record}; modalTitle.value='编辑销项发票'; modalVisible.value=true }
+async function deleteRecord(record:any) {
+  try { const r=await authFetch(`/api/invoices/${record.id}`,{method:'DELETE'}); const d=await r.json(); if(d.code===200){message.success('删除成功');loadData()} else message.error(d.msg||'删除失败') } catch {}
+}
 function onSaved() { modalVisible.value=false; loadData() }
 </script>
