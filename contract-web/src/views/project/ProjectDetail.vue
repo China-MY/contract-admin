@@ -63,6 +63,38 @@
       <a-empty v-else description="暂无阶段，请点击上方「新建阶段」添加" />
     </a-card>
 
+    <!-- 文档管理 -->
+    <a-card style="margin-top:16px">
+      <template #title>
+        <span style="font-size:16px;font-weight:bold">文档管理</span>
+      </template>
+      <div style="margin-bottom:12px">
+        <a-upload
+          :action="`/api/files/upload?projectNo=${project?.projectNo || ''}&projectName=${project?.projectName || ''}`"
+          :headers="uploadHeaders"
+          :showUploadList="true"
+          @change="onUploadChange"
+          :beforeUpload="beforeUpload"
+        >
+          <a-button type="primary">
+            <UploadOutlined /> 上传文件
+          </a-button>
+        </a-upload>
+      </div>
+      <a-table :dataSource="documents" :columns="docColumns" rowKey="id" size="small" bordered :pagination="false" :loading="docLoading">
+        <template #bodyCell="{column,record}">
+          <template v-if="column.key==='fileSize'">{{ formatSize(record.fileSize) }}</template>
+          <template v-else-if="column.key==='uploadTime'">{{ record.uploadTime?.substring(0,10) }}</template>
+          <template v-else-if="column.key==='action'">
+            <a-button type="link" size="small" @click="downloadFile(record)">下载</a-button>
+            <a-popconfirm title="确定删除该文件吗？" @confirm="deleteFile(record)" okText="确定" cancelText="取消">
+              <a-button type="link" size="small" danger>删除</a-button>
+            </a-popconfirm>
+          </template>
+        </template>
+      </a-table>
+    </a-card>
+
     <!-- 阶段编辑弹窗 -->
     <a-modal v-model:open="modalVisible" :title="modalTitle" width="60%" :footer="null" destroyOnClose>
       <a-form v-if="modalVisible" :model="form" layout="vertical" @finish="handleSave">
@@ -92,17 +124,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { message, Modal } from 'ant-design-vue'
 import { authFetch } from '../../utils/auth'
-import { CheckCircleOutlined, LoadingOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
+import { CheckCircleOutlined, LoadingOutlined, CloseCircleOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 
 const route = useRoute()
 const project = ref<any>(null)
 const stages = ref<any[]>([])
 const progress = reactive({ total: 0, completed: 0, inProgress: 0, percent: 0 })
+
+// 文档管理
+const documents = ref<any[]>([])
+const docLoading = ref(false)
+const docColumns = [
+  { title:'文件名', dataIndex:'originalName', key:'originalName', width:300 },
+  { title:'文件大小', key:'fileSize', width:100 },
+  { title:'文件类型', dataIndex:'fileType', key:'fileType', width:100 },
+  { title:'上传时间', key:'uploadTime', width:100 },
+  { title:'备注', dataIndex:'remark', key:'remark', width:150 },
+  { title:'操作', key:'action', width:120, fixed:'right' as const },
+]
+const uploadHeaders = computed(() => ({ Authorization: 'Bearer ' + (typeof window !== 'undefined' ? localStorage.getItem('token') || '' : '') }))
 
 const modalVisible = ref(false)
 const modalTitle = ref('')
@@ -130,6 +175,7 @@ onMounted(async () => {
 
   if (project.value) {
     loadStages()
+    loadDocuments()
   }
 })
 
@@ -147,6 +193,73 @@ async function loadStages() {
     }
   } catch {}
 }
+
+// 文档管理
+async function loadDocuments() {
+  if (!project.value?.projectNo) return
+  docLoading.value = true
+  try {
+    const r = await authFetch(`/api/files/project/${project.value.projectNo}`)
+    const d = await r.json()
+    if (d.code === 200) documents.value = d.data || []
+  } catch {} finally { docLoading.value = false }
+}
+
+function onUploadChange(info: any) {
+  if (info.file.status === 'done') {
+    if (info.file.response?.code === 200) {
+      message.success('上传成功')
+      loadDocuments()
+    } else {
+      message.error(info.file.response?.msg || '上传失败')
+    }
+  } else if (info.file.status === 'error') {
+    message.error('上传失败')
+  }
+}
+
+function beforeUpload(file: any) {
+  const maxSize = 50 * 1024 * 1024 // 50MB
+  if (file.size > maxSize) {
+    message.error('文件大小不能超过 50MB')
+    return false
+  }
+  return true
+}
+
+function formatSize(bytes: number) {
+  if (!bytes) return '-'
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
+async function downloadFile(record: any) {
+  try {
+    const r = await authFetch(`/api/files/${record.id}/download`)
+    if (!r.ok) { message.error('下载失败'); return }
+    const blob = await r.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = record.originalName || record.fileName
+    document.body.appendChild(a)
+    a.click()
+    URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+  } catch { message.error('下载失败') }
+}
+
+async function deleteFile(record: any) {
+  try {
+    const r = await authFetch(`/api/files/${record.id}`, { method: 'DELETE' })
+    const d = await r.json()
+    if (d.code === 200) { message.success('删除成功'); loadDocuments() }
+    else message.error(d.msg || '删除失败')
+  } catch {}
+}
+
+// 在项目加载后也加载文档
 
 function showAdd() {
   currentId.value = null

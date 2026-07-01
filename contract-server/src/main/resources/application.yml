@@ -15,11 +15,18 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 app:
   jwt:
     secret: Y29udHJhY3Qtc2VydmVyLWp3dC1zZWNyZXQta2V5LTIwMjYtcHJvZHVjdGlvbi1jb250cmFjdC1tYW5hZ2VtZW50
     expiration-ms: 86400000
+  upload:
+    dir: ./uploads
 
 logging:
   level:
