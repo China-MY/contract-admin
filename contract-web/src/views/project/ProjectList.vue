@@ -26,6 +26,9 @@
         <template v-else-if="column.key==='action'">
           <a-button type="link" size="small" @click="edit(record)">编辑</a-button>
           <a-button type="link" size="small" @click="router.push('/project/detail/'+record.id)">详情</a-button>
+          <a-popconfirm title="确定删除该项目吗？" @confirm="deleteRecord(record)" okText="确定" cancelText="取消">
+            <a-button type="link" size="small" danger>删除</a-button>
+          </a-popconfirm>
         </template>
       </template>
     </a-table>
@@ -101,6 +104,9 @@ function genProjectNo() {
 }
 function showAdd(){currentRecord.value=null;formModel.value={projectNo:genProjectNo(),projectName:'',projectType:'',status:'init',year:'',source:'',manager:'',customerName:'',startDate:null,endDate:null,budgetAmount:0,remark:''};modalTitle.value='新建项目';modalVisible.value=true}
 function edit(r:any){currentRecord.value={...r};formModel.value={...r,startDate:r.startDate?dayjs(r.startDate):null,endDate:r.endDate?dayjs(r.endDate):null};modalTitle.value='编辑项目';modalVisible.value=true}
+async function deleteRecord(record:any) {
+  try { const r=await authFetch(`/api/projects/${record.id}`,{method:'DELETE'}); const d=await r.json(); if(d.code===200){message.success('删除成功');loadData()} else message.error(d.msg||'删除失败') } catch {}
+}
 async function handleSave(){
   const payload={...formModel.value}
   if(payload.startDate)payload.startDate=dayjs(payload.startDate).format('YYYY-MM-DD')
